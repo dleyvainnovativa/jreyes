@@ -1,0 +1,652 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+/* ==========================================================================
+   JReyes Ópticos — theme.css
+   Tema oscuro, cálido y premium. Marca: rojo #f52228 + oro #fbcb66.
+   Bootstrap 5 aporta grid/utilidades; aquí van tokens, marca y componentes.
+   ========================================================================== */
+
+/* Bootstrap se importa desde app.js. Aquí solo el tema. */
+
+/* --------------------------------------------------------------------------
+   1. Tokens de marca
+   -------------------------------------------------------------------------- */
+:root {
+  /* Colores de marca */
+  --jr-red: #f52228;
+  --jr-red-600: #d61a20;
+  --jr-red-700: #b0141a;
+  --jr-gold: #fbcb66;
+  --jr-gold-300: #fddc95;
+  --jr-gold-600: #e0ac3f;
+
+  /* Superficies (tema oscuro cálido, no negro puro) */
+  --jr-bg: #14110f;
+  --jr-bg-2: #1c1815;
+  --jr-surface: #221d19;
+  --jr-surface-2: #2b251f;
+  --jr-line: #3a322b;
+
+  /* Texto */
+  --jr-text: #f4efe9;
+  --jr-text-muted: #c3b8ab;
+  --jr-text-dim: #8a7d72;
+
+  /* Radios y sombras */
+  --jr-radius: 8px;
+  --jr-radius-lg: 14px;
+  --jr-radius-pill: 999px;
+  --jr-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+  --jr-shadow-lg: 0 12px 32px rgba(0, 0, 0, .45);
+  --jr-shadow-gold: 0 8px 28px rgba(251, 203, 102, .18);
+
+  /* Tipografía */
+  --jr-font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --jr-font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Mapear tokens de Bootstrap al tema */
+  --bs-body-bg: var(--jr-bg);
+  --bs-body-color: var(--jr-text);
+  --bs-border-color: var(--jr-line);
+  --bs-primary: var(--jr-red);
+  --bs-primary-rgb: 245, 34, 40;
+  --bs-border-radius: var(--jr-radius);
+  --bs-link-color: var(--jr-gold);
+  --bs-link-hover-color: var(--jr-gold-300);
+}
+
+/* --------------------------------------------------------------------------
+   2. Base
+   -------------------------------------------------------------------------- */
+body {
+  background-color: var(--jr-bg);
+  color: var(--jr-text);
+  font-family: var(--jr-font-body);
+  font-size: 1.02rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .display-1, .display-2, .display-3, .display-4 {
+  font-family: var(--jr-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--jr-text);
+}
+
+.jr-eyebrow {
+  font-family: var(--jr-font-body);
+  font-weight: 700;
+  font-size: .78rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--jr-gold);
+}
+
+.jr-text-muted { color: var(--jr-text-muted) !important; }
+.jr-text-gold  { color: var(--jr-gold) !important; }
+.jr-text-red   { color: var(--jr-red) !important; }
+
+a { text-decoration: none; }
+a:hover { text-decoration: none; }
+
+::selection { background: var(--jr-red); color: #fff; }
+
+/* Accesibilidad: foco visible */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.jr-chip:focus-visible {
+  outline: 3px solid var(--jr-gold);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Respeta reduce-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Utilidades de superficie
+   -------------------------------------------------------------------------- */
+.jr-bg-2      { background-color: var(--jr-bg-2); }
+.jr-surface   { background-color: var(--jr-surface); }
+.jr-surface-2 { background-color: var(--jr-surface-2); }
+
+.jr-section { padding-block: clamp(3.5rem, 8vw, 6.5rem); }
+.jr-section-sm { padding-block: clamp(2.5rem, 5vw, 4rem); }
+
+.jr-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--jr-line), transparent);
+  border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4. Botones
+   -------------------------------------------------------------------------- */
+.btn {
+  --bs-btn-border-radius: var(--jr-radius);
+  font-weight: 600;
+  letter-spacing: .01em;
+  padding: .7rem 1.5rem;
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.btn:active { transform: translateY(1px); }
+
+.btn-jr-primary {
+  background: var(--jr-red);
+  border: 1px solid var(--jr-red);
+  color: #fff;
+}
+.btn-jr-primary:hover {
+  background: var(--jr-red-600);
+  border-color: var(--jr-red-600);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(245, 34, 40, .32);
+}
+
+.btn-jr-gold {
+  background: var(--jr-gold);
+  border: 1px solid var(--jr-gold);
+  color: #241c0a;
+}
+.btn-jr-gold:hover {
+  background: var(--jr-gold-300);
+  border-color: var(--jr-gold-300);
+  color: #241c0a;
+  box-shadow: var(--jr-shadow-gold);
+}
+
+.btn-jr-outline {
+  background: transparent;
+  border: 1px solid var(--jr-line);
+  color: var(--jr-text);
+}
+.btn-jr-outline:hover {
+  border-color: var(--jr-gold);
+  color: var(--jr-gold);
+  background: rgba(251, 203, 102, .06);
+}
+
+/* --------------------------------------------------------------------------
+   5. Navbar
+   -------------------------------------------------------------------------- */
+.jr-navbar {
+  background: rgba(20, 17, 15, .85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--jr-line);
+  transition: background-color .3s ease;
+}
+.jr-navbar .navbar-brand img { height: 46px; width: auto; }
+.jr-navbar .nav-link {
+  color: var(--jr-text-muted);
+  font-weight: 600;
+  font-size: .96rem;
+  padding-inline: .9rem;
+  position: relative;
+}
+.jr-navbar .nav-link:hover,
+.jr-navbar .nav-link.active { color: var(--jr-text); }
+.jr-navbar .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: .9rem; right: .9rem; bottom: .1rem;
+  height: 2px;
+  background: var(--jr-red);
+  border-radius: 2px;
+}
+.jr-navbar .navbar-toggler {
+  border-color: var(--jr-line);
+  padding: .35rem .6rem;
+}
+.jr-navbar .navbar-toggler:focus { box-shadow: none; }
+
+/* --------------------------------------------------------------------------
+   6. Hero
+   -------------------------------------------------------------------------- */
+.jr-hero {
+  position: relative;
+  background:
+    radial-gradient(120% 90% at 85% 10%, rgba(245, 34, 40, .16), transparent 55%),
+    radial-gradient(90% 80% at 10% 90%, rgba(251, 203, 102, .12), transparent 50%),
+    var(--jr-bg);
+  overflow: hidden;
+}
+.jr-hero__title {
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 1.02;
+  font-weight: 600;
+}
+.jr-hero__title em {
+  font-style: italic;
+  color: var(--jr-gold);
+}
+.jr-hero__lead {
+  font-size: 1.2rem;
+  color: var(--jr-text-muted);
+  max-width: 34ch;
+}
+.jr-hero__media {
+  position: relative;
+  /* border-radius: var(--jr-radius-lg); */
+  overflow: hidden;
+  /* box-shadow: var(--jr-shadow-lg); */
+  /* border: 1px solid var(--jr-line); */
+}
+.jr-hero__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.jr-hero__badge {
+  position: absolute;
+  bottom: 1rem; left: 1rem;
+  background: var(--jr-gold);
+  color: #241c0a;
+  font-weight: 700;
+  font-size: .85rem;
+  padding: .5rem .9rem;
+  border-radius: var(--jr-radius-pill);
+  box-shadow: var(--jr-shadow);
+}
+
+/* --------------------------------------------------------------------------
+   7. Barra de confianza
+   -------------------------------------------------------------------------- */
+.jr-trust {
+  border-top: 1px solid var(--jr-line);
+  border-bottom: 1px solid var(--jr-line);
+  background: var(--jr-bg-2);
+}
+.jr-trust__item { color: var(--jr-text-muted); font-weight: 600; }
+.jr-trust__item i { color: var(--jr-gold); }
+
+/* --------------------------------------------------------------------------
+   8. Tarjetas
+   -------------------------------------------------------------------------- */
+.jr-card {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-lg);
+  overflow: hidden;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  height: 100%;
+}
+.jr-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--jr-gold-600);
+  box-shadow: var(--jr-shadow-lg);
+}
+.jr-card__media {
+  aspect-ratio: 4 / 3;
+  background: var(--jr-surface-2);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.jr-card__media img { width: 100%; height: 100%; object-fit: cover; }
+.jr-card__body { padding: 1.35rem 1.4rem 1.5rem; }
+.jr-card__title { font-size: 1.25rem; margin-bottom: .4rem; }
+.jr-card__price {
+  font-family: var(--jr-font-display);
+  color: var(--jr-gold);
+  font-weight: 600;
+}
+
+/* Tarjeta de categoría (portada de sección) */
+.jr-cat {
+  position: relative;
+  border-radius: var(--jr-radius-lg);
+  overflow: hidden;
+  min-height: 260px;
+  display: flex;
+  align-items: flex-end;
+  border: 1px solid var(--jr-line);
+  background: var(--jr-surface);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.jr-cat:hover { transform: translateY(-4px); box-shadow: var(--jr-shadow-lg); }
+.jr-cat__icon {
+  font-size: 2rem;
+  color: var(--jr-gold);
+  margin-bottom: .6rem;
+}
+.jr-cat__body { padding: 1.6rem; position: relative; z-index: 2; }
+.jr-cat__title { font-size: 1.5rem; }
+
+/* Insignia premium */
+.jr-badge-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--jr-gold);
+  background: rgba(251, 203, 102, .1);
+  border: 1px solid rgba(251, 203, 102, .35);
+  padding: .2rem .6rem;
+  border-radius: var(--jr-radius-pill);
+}
+
+/* --------------------------------------------------------------------------
+   9. Configurador ("Armá tus lentes") — elemento firma
+   -------------------------------------------------------------------------- */
+.jr-config {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-lg);
+  box-shadow: var(--jr-shadow-lg);
+  overflow: hidden;
+}
+.jr-config__step { padding: 1.5rem 1.6rem; border-bottom: 1px solid var(--jr-line); }
+.jr-config__step:last-child { border-bottom: 0; }
+.jr-config__num {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem; height: 1.6rem;
+  border-radius: 50%;
+  background: var(--jr-red);
+  color: #fff;
+  font-weight: 700;
+  font-size: .85rem;
+  margin-right: .6rem;
+}
+.jr-config__label { font-weight: 700; font-size: 1.05rem; }
+
+.jr-chips { display: flex; flex-wrap: wrap; gap: .55rem; }
+.jr-chip {
+  background: var(--jr-surface-2);
+  border: 1px solid var(--jr-line);
+  color: var(--jr-text);
+  border-radius: var(--jr-radius);
+  padding: .6rem .95rem;
+  font-weight: 600;
+  font-size: .92rem;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.jr-chip:hover { border-color: var(--jr-gold-600); }
+.jr-chip[aria-pressed="true"] {
+  border-color: var(--jr-red);
+  background: rgba(245, 34, 40, .12);
+  color: #fff;
+}
+.jr-chip small { display: block; color: var(--jr-text-dim); font-weight: 500; }
+.jr-chip[aria-pressed="true"] small { color: var(--jr-gold-300); }
+.jr-chip:disabled { opacity: .4; cursor: not-allowed; }
+
+.jr-config__total {
+  background: linear-gradient(135deg, var(--jr-surface-2), var(--jr-surface));
+  padding: 1.5rem 1.6rem;
+}
+.jr-config__price {
+  font-family: var(--jr-font-display);
+  font-size: 2.6rem;
+  font-weight: 600;
+  color: var(--jr-gold);
+  line-height: 1;
+}
+.jr-config__hint { color: var(--jr-text-dim); font-size: .85rem; }
+
+/* --------------------------------------------------------------------------
+   10. Tabla comparativa (estilo "baterías" de Crizal)
+   -------------------------------------------------------------------------- */
+.jr-compare {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-lg);
+  overflow: hidden;
+}
+.jr-compare th, .jr-compare td {
+  padding: .9rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--jr-line);
+}
+.jr-compare thead th {
+  background: var(--jr-surface-2);
+  font-family: var(--jr-font-display);
+  font-size: 1rem;
+  color: var(--jr-text);
+  vertical-align: bottom;
+}
+.jr-compare tbody th {
+  text-align: left;
+  color: var(--jr-text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.jr-compare tbody tr:last-child th,
+.jr-compare tbody tr:last-child td { border-bottom: 0; }
+.jr-compare td.is-price { color: var(--jr-gold); font-weight: 700; }
+
+/* Barra de puntuación 0-3 */
+.jr-score { display: inline-flex; gap: 3px; }
+.jr-score span {
+  width: 14px; height: 9px;
+  border-radius: 2px;
+  background: var(--jr-line);
+}
+.jr-score span.on { background: var(--jr-red); }
+.jr-score span.on.gold { background: var(--jr-gold); }
+
+/* --------------------------------------------------------------------------
+   11. Marcas / showcase
+   -------------------------------------------------------------------------- */
+.jr-brand-hero {
+  border-radius: var(--jr-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--jr-line);
+  box-shadow: var(--jr-shadow);
+}
+.jr-brand-hero img { width: 100%; display: block; }
+
+.jr-feature {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius);
+  padding: 1.3rem;
+  height: 100%;
+}
+.jr-feature i { color: var(--jr-gold); font-size: 1.4rem; }
+
+/* --------------------------------------------------------------------------
+   12. Lentes de contacto — filtros y lista
+   -------------------------------------------------------------------------- */
+.jr-filter-bar { display: flex; flex-wrap: wrap; gap: .5rem; }
+.jr-filter {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  color: var(--jr-text-muted);
+  border-radius: var(--jr-radius-pill);
+  padding: .45rem 1.1rem;
+  font-weight: 600;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.jr-filter:hover { color: var(--jr-text); border-color: var(--jr-gold-600); }
+.jr-filter.active {
+  background: var(--jr-red);
+  border-color: var(--jr-red);
+  color: #fff;
+}
+
+/* Lentes de contacto — tarjeta acordeón */
+.jr-cl-item {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius);
+  overflow: hidden;
+  transition: border-color .15s ease;
+}
+.jr-cl-item:hover,
+.jr-cl-item.is-open { border-color: var(--jr-gold-600); }
+
+.jr-cl-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: transparent;
+  border: 0;
+  color: var(--jr-text);
+  cursor: pointer;
+  text-align: left;
+}
+.jr-cl-row__name { font-weight: 600; }
+.jr-cl-row__meta { color: var(--jr-text-dim); font-size: .85rem; margin-top: .15rem; }
+.jr-cl-row__price { font-family: var(--jr-font-display); color: var(--jr-gold); font-weight: 600; white-space: nowrap; }
+
+.jr-cl-caret { color: var(--jr-text-dim); transition: transform .2s ease; }
+.jr-cl-item.is-open .jr-cl-caret { transform: rotate(180deg); }
+
+.jr-cl-panel {
+  padding: 0 1.2rem 1.2rem;
+  border-top: 1px solid var(--jr-line);
+}
+.jr-cl-panel__media {
+  aspect-ratio: 16 / 10;
+  background: #fff;
+  border-radius: var(--jr-radius);
+  overflow: hidden;
+  margin: 1rem 0;
+  display: grid;
+  place-items: center;
+}
+.jr-cl-panel__media img { width: 100%; height: 100%; object-fit: contain; }
+
+.jr-tag {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--jr-text-muted);
+  background: var(--jr-surface-2);
+  border: 1px solid var(--jr-line);
+  padding: .15rem .55rem;
+  border-radius: var(--jr-radius-pill);
+}
+
+/* --------------------------------------------------------------------------
+   13. Paquetes
+   -------------------------------------------------------------------------- */
+.jr-package {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius);
+  padding: 1.3rem 1.4rem;
+  transition: transform .2s ease, border-color .2s ease;
+  height: 100%;
+}
+.jr-package:hover { transform: translateY(-3px); border-color: var(--jr-gold-600); }
+.jr-package.is-featured { border-color: var(--jr-red); box-shadow: 0 8px 24px rgba(245, 34, 40, .16); }
+.jr-package__price { font-family: var(--jr-font-display); font-size: 2rem; color: var(--jr-gold); }
+
+/* --------------------------------------------------------------------------
+   14. Formulario de contacto
+   -------------------------------------------------------------------------- */
+.form-control, .form-select {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  color: var(--jr-text);
+  border-radius: var(--jr-radius);
+  padding: .7rem .9rem;
+}
+.form-control::placeholder { color: var(--jr-text-dim); }
+.form-control:focus, .form-select:focus {
+  background: var(--jr-surface);
+  border-color: var(--jr-gold);
+  color: var(--jr-text);
+  box-shadow: 0 0 0 .2rem rgba(251, 203, 102, .18);
+}
+.form-label { font-weight: 600; color: var(--jr-text); margin-bottom: .4rem; }
+.form-select option { background: var(--jr-surface); color: var(--jr-text); }
+
+.jr-alert-success {
+  background: rgba(251, 203, 102, .12);
+  border: 1px solid var(--jr-gold-600);
+  color: var(--jr-gold-300);
+  border-radius: var(--jr-radius);
+  padding: 1rem 1.2rem;
+}
+.invalid-feedback { color: #ff8a8f; }
+.form-control.is-invalid, .form-select.is-invalid { border-color: var(--jr-red); }
+
+/* --------------------------------------------------------------------------
+   15. Footer
+   -------------------------------------------------------------------------- */
+.jr-footer {
+  background: var(--jr-bg-2);
+  border-top: 1px solid var(--jr-line);
+  color: var(--jr-text-muted);
+}
+.jr-footer a { color: var(--jr-text-muted); }
+.jr-footer a:hover { color: var(--jr-gold); }
+.jr-footer h5 { color: var(--jr-text); font-family: var(--jr-font-body); font-size: .95rem; letter-spacing: .04em; text-transform: uppercase; }
+.jr-footer__logo { height: 54px; }
+
+/* --------------------------------------------------------------------------
+   16. Animaciones de entrada
+   -------------------------------------------------------------------------- */
+.jr-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.jr-reveal.is-visible { opacity: 1; transform: none; }
+
+/* --------------------------------------------------------------------------
+   17. Ajustes responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .jr-navbar .nav-link.active::after { display: none; }
+}
+
+/* Offcanvas móvil con el tema oscuro */
+.jr-offcanvas {
+  background: var(--jr-bg-2);
+  color: var(--jr-text);
+  border-left: 1px solid var(--jr-line);
+  width: min(82vw, 320px);
+}
+.jr-offcanvas .offcanvas-header { border-bottom: 1px solid var(--jr-line); }
+.jr-offcanvas .nav-link {
+  color: var(--jr-text-muted);
+  font-weight: 600;
+  padding-block: .6rem;
+}
+.jr-offcanvas .nav-link:hover,
+.jr-offcanvas .nav-link.active { color: var(--jr-text); }
+
+/* En escritorio el offcanvas se muestra como barra normal */
+@media (min-width: 992px) {
+  .jr-offcanvas {
+    background: transparent;
+    border: 0;
+    width: auto;
+    position: static;
+    transform: none;
+    visibility: visible !important;
+  }
+  .jr-offcanvas .offcanvas-header { display: none; }
+  .jr-offcanvas .offcanvas-body { padding: 0; }
+}
+
+@media (max-width: 575.98px) {
+  .jr-config__price { font-size: 2.1rem; }
+  .jr-compare { font-size: .85rem; }
+  .jr-compare th, .jr-compare td { padding: .6rem .5rem; }
+}
