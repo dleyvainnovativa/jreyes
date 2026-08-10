@@ -183,8 +183,12 @@ button:focus-visible,
    5. Navbar
    -------------------------------------------------------------------------- */
 .jr-navbar {
-  background: rgba(20, 17, 15, .85);
-  backdrop-filter: blur(12px);
+  /*
+   * IMPORTANT: do not put backdrop-filter/filter/transform on this element.
+   * Bootstrap's mobile offcanvas is position: fixed; those properties can make
+   * the navbar its containing block and the drawer gets positioned incorrectly.
+   */
+  background: rgba(20, 17, 15, .96);
   border-bottom: 1px solid var(--jr-line);
   transition: background-color .3s ease;
 }
@@ -617,23 +621,57 @@ button:focus-visible,
 
 /* Offcanvas móvil con el tema oscuro */
 .jr-offcanvas {
+  /* Bootstrap applies width on .offcanvas.offcanvas-end, which is more specific
+     than .jr-offcanvas. Override the Bootstrap variable instead. */
+  --bs-offcanvas-width: min(82vw, 320px);
   background: var(--jr-bg-2);
   color: var(--jr-text);
   border-left: 1px solid var(--jr-line);
-  width: min(82vw, 320px);
 }
-.jr-offcanvas .offcanvas-header { border-bottom: 1px solid var(--jr-line); }
+
+.jr-offcanvas .offcanvas-header {
+  min-height: 72px;
+  padding: .9rem 1.15rem;
+  border-bottom: 1px solid var(--jr-line);
+}
+
+.jr-offcanvas .offcanvas-body {
+  padding: .75rem 1.15rem 1.5rem;
+}
+
 .jr-offcanvas .nav-link {
+  display: block;
+  width: 100%;
   color: var(--jr-text-muted);
   font-weight: 600;
-  padding-block: .6rem;
+  padding: .85rem .25rem;
 }
+
 .jr-offcanvas .nav-link:hover,
 .jr-offcanvas .nav-link.active { color: var(--jr-text); }
+
+@media (max-width: 991.98px) {
+  .jr-offcanvas {
+    height: 100dvh;
+  }
+
+  .jr-offcanvas .navbar-nav {
+    width: 100%;
+  }
+
+  .jr-offcanvas .nav-item:not(:last-child) .nav-link {
+    border-bottom: 1px solid rgba(58, 50, 43, .7);
+  }
+
+  .jr-offcanvas .nav-item:last-child {
+    margin-top: 1rem !important;
+  }
+}
 
 /* En escritorio el offcanvas se muestra como barra normal */
 @media (min-width: 992px) {
   .jr-offcanvas {
+    --bs-offcanvas-width: auto;
     background: transparent;
     border: 0;
     width: auto;
