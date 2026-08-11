@@ -8,7 +8,7 @@
 
         {{-- Botón que abre el offcanvas en móvil --}}
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#jrNav"
-            aria-controls="jrNav" aria-label="Abrir menú">
+                aria-controls="jrNav" aria-label="Abrir menú">
             <i class="fa-solid fa-bars text-light"></i>
         </button>
 
@@ -33,6 +33,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('paquetes') ? 'active' : '' }}" href="{{ route('paquetes') }}">Paquetes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('empresa') ? 'active' : '' }}" href="{{ route('empresa') }}">Empresa</a>
                     </li>
                     <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
                         <a class="btn btn-jr-primary w-100" href="{{ route('contacto') }}">

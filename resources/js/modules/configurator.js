@@ -32,7 +32,7 @@ export function initConfigurator() {
     return;
   }
 
-  const state = { tipo: null, diseno: null, tratamiento: null, extra: null };
+  const state = { armazon: null, tipo: null, diseno: null, tratamiento: null, extra: null };
 
   // Imagen mostrada en el resumen. "Gana" la última selección que tenga
   // imagen propia; si el elemento elegido no trae imagen, se conserva la
@@ -40,6 +40,7 @@ export function initConfigurator() {
   let lastImg = null;
 
   const tipoWrap = root.querySelector('[data-step="tipo"]');
+  const armazonWrap = root.querySelector('[data-step="armazon"]');
   const disenoWrap = root.querySelector('[data-step="diseno"]');
   const tratWrap = root.querySelector('[data-step="tratamiento"]');
   const extraWrap = root.querySelector('[data-step="extra"]');
@@ -70,14 +71,38 @@ export function initConfigurator() {
     container.querySelectorAll('.jr-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
   }
 
-  // Paso 1 — tipo de lente
+  // Paso 1 — armazón (obligatorio). Cuadrícula de miniaturas.
+  if (armazonWrap && Array.isArray(data.armazones)) {
+    data.armazones.forEach((f) => {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'jr-frame';
+      cell.setAttribute('role', 'option');
+      cell.setAttribute('aria-selected', 'false');
+      cell.setAttribute('aria-label', f.nombre);
+      cell.innerHTML = `
+        <span class="jr-frame__media"><img src="${f.imagen}" alt="${f.nombre}" loading="lazy"></span>
+        <span class="jr-frame__label">${f.nombre}</span>`;
+      cell.addEventListener('click', () => {
+        armazonWrap.querySelectorAll('.jr-frame').forEach((c) => c.setAttribute('aria-selected', 'false'));
+        cell.setAttribute('aria-selected', 'true');
+        state.armazon = f;
+        if (f.imagen) lastImg = f.imagen; // el armazón ancla la vista previa
+        recalc();
+      });
+      armazonWrap.appendChild(cell);
+    });
+  }
+
+  // Paso 2 — tipo de lente
   data.tipos.forEach((tipo) => {
     const btn = chip(tipo.nombre, null, () => {
       clearPressed(tipoWrap);
       btn.setAttribute('aria-pressed', 'true');
       state.tipo = tipo;
       state.diseno = null;
-      lastImg = null; // el diseño se reinicia: la imagen vuelve al logo hasta la próxima elección
+      // al cambiar de tipo, la vista previa vuelve al armazón elegido (o al logo)
+      lastImg = state.armazon ? state.armazon.imagen : null;
       renderDesigns(tipo);
       recalc();
     }, 'tipo');
@@ -157,11 +182,10 @@ export function initConfigurator() {
 
   function renderSummary() {
     if (!summary) return;
-    const anySelection = state.tipo || state.diseno || state.tratamiento || state.extra;
+    const anySelection = state.armazon || state.tipo || state.diseno || state.tratamiento || state.extra;
 
     // Imagen: gana la última selección con imagen propia; si aún no hay
     // ninguna, muestra el logo. Al reiniciar (sin selección) vuelve al logo.
-    console.log('lastImg', lastImg, 'defaultImg', defaultImg, 'anySelection', anySelection);
     const targetImg = anySelection ? (lastImg || defaultImg) : defaultImg;
     if (summaryImg && summaryImg.getAttribute('src') !== targetImg) {
       summaryImg.style.opacity = '0';
@@ -181,6 +205,7 @@ export function initConfigurator() {
     summaryDetail?.classList.remove('d-none');
 
     const rows = [];
+    if (state.armazon) rows.push(summaryRow('Armazón', state.armazon.nombre, 'Armazón incluido.', null));
     if (state.tipo) rows.push(summaryRow('Tipo', state.tipo.nombre, state.tipo.descripcion, null));
     if (state.diseno) rows.push(summaryRow('Diseño', `${state.diseno.nombre} · ${state.diseno.material}`, state.diseno.descripcion, state.diseno.precio));
     if (state.tratamiento) rows.push(summaryRow('Tratamiento', state.tratamiento.nombre, state.tratamiento.descripcion, state.tratamiento.precio));
@@ -193,6 +218,7 @@ export function initConfigurator() {
     const numero = (data.whatsapp || '').replace(/\D/g, '');
     const l = [];
     l.push('¡Hola! Quiero cotizar unos lentes con esta configuración:');
+    if (state.armazon) l.push(`• Armazón: ${state.armazon.nombre} (incluido)`);
     if (state.tipo) l.push(`• Tipo: ${state.tipo.nombre}`);
     if (state.diseno) l.push(`• Diseño: ${state.diseno.nombre} (${state.diseno.material}) — ${MXN.format(state.diseno.precio)}`);
     if (state.tratamiento) l.push(`• Tratamiento: ${state.tratamiento.nombre} — ${MXN.format(state.tratamiento.precio)}`);
@@ -211,18 +237,20 @@ export function initConfigurator() {
     priceEl.textContent = MXN.format(total);
 
     // Desglose corto bajo el precio
-    if (!state.diseno) {
+    if (!state.armazon) {
+      breakdownEl.textContent = 'Elige un armazón para comenzar.';
+    } else if (!state.diseno) {
       breakdownEl.textContent = 'Elige el tipo y el diseño para ver tu precio.';
     } else {
-      const lineas = [`Mica ${MXN.format(micaPrecio)}`];
+      const lineas = [`Armazón incluido`, `Mica ${MXN.format(micaPrecio)}`];
       if (state.tratamiento) lineas.push(`Tratamiento ${MXN.format(tratPrecio)}`);
       if (state.extra) lineas.push(`Extra ${MXN.format(extraPrecio)}`);
       breakdownEl.innerHTML = '<span class="jr-text-muted">' + lineas.join(' + ') + '</span>';
     }
 
-    // Botón de WhatsApp: activo solo si ya hay diseño elegido.
+    // Botón de WhatsApp: activo solo con armazón y diseño elegidos.
     if (waBtn) {
-      if (state.diseno) {
+      if (state.armazon && state.diseno) {
         waBtn.href = buildWhatsAppUrl(total);
         waBtn.classList.remove('disabled');
         waBtn.removeAttribute('aria-disabled');

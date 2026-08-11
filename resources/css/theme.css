@@ -402,6 +402,56 @@ button:focus-visible,
 }
 .jr-config__hint { color: var(--jr-text-dim); font-size: .85rem; }
 
+/* Cuadrícula de armazones (paso 1) — área con scroll, miniaturas */
+.jr-frame-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .6rem;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: .25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--jr-line) transparent;
+}
+.jr-frame-grid::-webkit-scrollbar { width: 8px; }
+.jr-frame-grid::-webkit-scrollbar-thumb { background: var(--jr-line); border-radius: 999px; }
+@media (max-width: 575.98px) {
+  .jr-frame-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.jr-frame {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  padding: .4rem;
+  background: var(--jr-surface-2);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius);
+  cursor: pointer;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.jr-frame:hover { border-color: var(--jr-gold-600); transform: translateY(-2px); }
+.jr-frame[aria-selected="true"] {
+  border-color: var(--jr-red);
+  box-shadow: 0 0 0 2px rgba(245, 34, 40, .35);
+}
+.jr-frame__media {
+  aspect-ratio: 4 / 3;
+  background: #fff;
+  border-radius: calc(var(--jr-radius) - 3px);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.jr-frame__media img { width: 100%; height: 100%; object-fit: contain; }
+.jr-frame__label {
+  font-size: .72rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--jr-text-muted);
+}
+.jr-frame[aria-selected="true"] .jr-frame__label { color: var(--jr-text); }
+
 /* --------------------------------------------------------------------------
    10. Tabla comparativa (estilo "baterías" de Crizal)
    -------------------------------------------------------------------------- */
@@ -465,6 +515,33 @@ button:focus-visible,
   height: 100%;
 }
 .jr-feature i { color: var(--jr-gold); font-size: 1.4rem; }
+
+/* Línea de tiempo (mecánica operativa) */
+.jr-timeline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 767.98px) { .jr-timeline { grid-template-columns: 1fr; } }
+.jr-timeline__item {
+  display: flex;
+  gap: .9rem;
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius);
+  padding: 1.1rem 1.2rem;
+}
+.jr-timeline__dot {
+  flex: 0 0 auto;
+  width: 2rem; height: 2rem;
+  border-radius: 50%;
+  background: var(--jr-red);
+  color: #fff;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.jr-timeline__body h3 { color: var(--jr-text); }
 
 /* --------------------------------------------------------------------------
    12. Lentes de contacto — filtros y lista
@@ -647,6 +724,11 @@ button:focus-visible,
   padding: .85rem .25rem;
 }
 
+.jr-offcanvas .nav-link {
+  color: var(--jr-text-muted);
+  font-weight: 600;
+  padding-block: .6rem;
+}
 .jr-offcanvas .nav-link:hover,
 .jr-offcanvas .nav-link.active { color: var(--jr-text); }
 

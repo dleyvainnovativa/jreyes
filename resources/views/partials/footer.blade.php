@@ -18,6 +18,7 @@
                     <li><a href="{{ route('marcas') }}">Varilux y Crizal</a></li>
                     <li><a href="{{ route('lentes-contacto') }}">Lentes de contacto</a></li>
                     <li><a href="{{ route('paquetes') }}">Paquetes</a></li>
+                    <li><a href="{{ route('empresa') }}">Empresa</a></li>
                 </ul>
             </div>
 

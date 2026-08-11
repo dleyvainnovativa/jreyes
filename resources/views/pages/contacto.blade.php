@@ -16,13 +16,13 @@
 
 <section class="jr-section">
     <div class="container">
-        <div class="row g-5">
+        <div class="row g-4">
             {{-- Formulario --}}
             <div class="col-lg-7">
                 @if (session('exito'))
-                    <div class="jr-alert-success mb-4" role="status">
-                        <i class="fa-solid fa-circle-check me-2"></i>{{ session('exito') }}
-                    </div>
+                <div class="jr-alert-success mb-4" role="status">
+                    <i class="fa-solid fa-circle-check me-2"></i>{{ session('exito') }}
+                </div>
                 @endif
 
                 <form action="{{ route('contacto.store') }}" method="POST" novalidate>
@@ -31,19 +31,19 @@
                         <div class="col-md-6">
                             <label for="nombre" class="form-label">Nombre completo *</label>
                             <input type="text" id="nombre" name="nombre" value="{{ old('nombre') }}"
-                                   class="form-control @error('nombre') is-invalid @enderror" required>
+                                class="form-control @error('nombre') is-invalid @enderror" required>
                             @error('nombre')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
                             <label for="telefono" class="form-label">Teléfono *</label>
                             <input type="tel" id="telefono" name="telefono" value="{{ old('telefono') }}"
-                                   class="form-control @error('telefono') is-invalid @enderror" required>
+                                class="form-control @error('telefono') is-invalid @enderror" required>
                             @error('telefono')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
                             <label for="correo" class="form-label">Correo electrónico</label>
                             <input type="email" id="correo" name="correo" value="{{ old('correo') }}"
-                                   class="form-control @error('correo') is-invalid @enderror">
+                                class="form-control @error('correo') is-invalid @enderror">
                             @error('correo')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-md-6">
@@ -51,7 +51,7 @@
                             <select id="motivo" name="motivo" class="form-select @error('motivo') is-invalid @enderror">
                                 <option value="">Selecciona una opción</option>
                                 @foreach (['Examen de la vista', 'Cotización de lentes', 'Lentes de contacto', 'Ajuste o reparación', 'Otro'] as $op)
-                                    <option value="{{ $op }}" @selected(old('motivo') === $op)>{{ $op }}</option>
+                                <option value="{{ $op }}" @selected(old('motivo')===$op)>{{ $op }}</option>
                                 @endforeach
                             </select>
                             @error('motivo')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
@@ -59,15 +59,15 @@
                         <div class="col-md-6">
                             <label for="fecha_preferida" class="form-label">Fecha preferida</label>
                             <input type="date" id="fecha_preferida" name="fecha_preferida" value="{{ old('fecha_preferida') }}"
-                                   min="{{ date('Y-m-d') }}"
-                                   class="form-control @error('fecha_preferida') is-invalid @enderror">
+                                min="{{ date('Y-m-d') }}"
+                                class="form-control @error('fecha_preferida') is-invalid @enderror">
                             @error('fecha_preferida')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-12">
                             <label for="mensaje" class="form-label">Mensaje (opcional)</label>
                             <textarea id="mensaje" name="mensaje" rows="4"
-                                      class="form-control @error('mensaje') is-invalid @enderror"
-                                      placeholder="Cuéntanos qué necesitas…">{{ old('mensaje') }}</textarea>
+                                class="form-control @error('mensaje') is-invalid @enderror"
+                                placeholder="Cuéntanos qué necesitas…">{{ old('mensaje') }}</textarea>
                             @error('mensaje')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-12">

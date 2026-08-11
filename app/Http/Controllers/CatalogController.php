@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContactLensBrand;
+use App\Models\Frame;
 use App\Models\LensType;
 use App\Models\Package;
 use App\Models\Treatment;
@@ -24,41 +25,59 @@ class CatalogController extends Controller
     public function lentes()
     {
         $lensTypes = LensType::activos()->with('designs')->get();
+
+        // Tratamientos normales (paso 3) y extras aditivos como fotocromático (paso 4).
         $treatments = Treatment::activos()->where('es_extra', false)->get();
-        $extras     = Treatment::activos()->where('es_extra', true)->get();
+        $extras = Treatment::activos()->where('es_extra', true)->get();
+
+        // Armazones (paso 1, obligatorio). Precio incluido (0) por ahora.
+        $frames = Frame::activos()->get();
+
         $logo = 'img/logo-jreyes.png';
+
         // Datos para el configurador (JSON en el cliente): sin llamadas al backend.
         $configData = [
             'whatsapp' => config('services.whatsapp.number'),
             'logo' => asset($logo),
-            'tipos' => $lensTypes->map(fn($t) => [
+            'armazones' => $frames->map(fn ($f) => [
+                'numero' => $f->numero,
+                'nombre' => $f->nombre,
+                'precio' => (float) $f->precio,
+                'imagen' => asset($f->imagen ?: $logo),
+            ])->values(),
+            'tipos' => $lensTypes->map(fn ($t) => [
                 'slug' => $t->slug,
                 'nombre' => $t->nombre,
-                'disenos' => $t->designs->map(fn($d) => [
+                'descripcion' => $t->resumen,
+                'disenos' => $t->designs->map(fn ($d) => [
                     'slug' => $d->slug,
                     'nombre' => $d->nombre,
                     'material' => $d->material,
                     'precio' => (float) $d->precio,
                     'premium' => (bool) $d->premium,
+                    'descripcion' => $d->descripcion,
+                    'imagen' => asset($d->imagen ?: $logo),
                 ])->values(),
             ])->values(),
-            'tratamientos' => $treatments->map(fn($t) => [
-                'slug' => $t->slug,
-                'nombre' => $t->nombre,
-                'familia' => $t->familia,
-                'imagen' => $t->imagen,
-                'precio' => (float) $t->precio,
-            ])->values(),
-            'extras' => $extras->map(fn($t) => [
+            'tratamientos' => $treatments->map(fn ($t) => [
                 'slug' => $t->slug,
                 'nombre' => $t->nombre,
                 'familia' => $t->familia,
                 'precio' => (float) $t->precio,
                 'descripcion' => $t->descripcion,
-                'imagen' => $t->imagen,
+                'imagen' => asset($t->imagen ?: $logo),
+            ])->values(),
+            'extras' => $extras->map(fn ($t) => [
+                'slug' => $t->slug,
+                'nombre' => $t->nombre,
+                'familia' => $t->familia,
+                'precio' => (float) $t->precio,
+                'descripcion' => $t->descripcion,
+                'imagen' => asset($t->imagen ?: $logo),
             ])->values(),
         ];
-        return view('pages.lentes', compact('lensTypes', 'treatments', 'extras', 'configData'));
+
+        return view('pages.lentes', compact('lensTypes', 'treatments', 'extras', 'frames', 'configData'));
     }
 
     /** Marcas: Varilux y Crizal, más la tabla comparativa de tratamientos. */
@@ -77,7 +96,8 @@ class CatalogController extends Controller
     {
         $brands = ContactLensBrand::ordenadas()->with('lenses')->get();
         $whatsapp = config('services.whatsapp.number');
-        $logo = 'img/logo-jreyes.png';
+        $logo = asset('img/logo-jreyes.png');
+
         return view('pages.lentes-contacto', compact('brands', 'whatsapp', 'logo'));
     }
 
@@ -86,8 +106,15 @@ class CatalogController extends Controller
     {
         $packages = Package::activos()->get()->groupBy('nombre');
         $whatsapp = config('services.whatsapp.number');
-        $logo = 'img/logo-jreyes.png';
 
-        return view('pages.paquetes', compact('packages', 'whatsapp', 'logo'));
+        return view('pages.paquetes', compact('packages', 'whatsapp'));
+    }
+
+    /** Página institucional "Empresa". Contenido estático. */
+    public function empresa()
+    {
+        $whatsapp = config('services.whatsapp.number');
+
+        return view('pages.empresa', compact('whatsapp'));
     }
 }

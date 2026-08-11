@@ -8,7 +8,7 @@
 {{-- ===================== HERO ===================== --}}
 <section class="jr-hero jr-section">
     <div class="container">
-        <div class="row align-items-center g-5">
+        <div class="row align-items-center g-4">
             <div class="col-lg-6">
                 <p class="jr-eyebrow mb-3">Óptica · Veracruz</p>
                 <h1 class="jr-hero__title mb-4">
@@ -50,6 +50,35 @@
     </div>
 </section>
 
+{{-- ===================== MISIÓN Y VISIÓN ===================== --}}
+<section class="jr-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6 jr-reveal">
+                <div class="jr-feature h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <h2 class="h3 mb-0">Misión</h2>
+                    </div>
+                    <p class="jr-text-muted mb-0">Ofrecer un servicio integral mediante la combinación de valores, calidad de atención y asesoría, de manera que satisfagan las necesidades y expectativas de nuestros clientes, produciendo un impacto positivo en sus vidas y crecimiento personal.</p>
+                </div>
+            </div>
+            <div class="col-lg-6 jr-reveal">
+                <div class="jr-feature h-100">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <i class="fa-solid fa-eye"></i>
+                        <h2 class="h3 mb-0">Visión</h2>
+                    </div>
+                    <p class="jr-text-muted mb-0">Ser la empresa de vanguardia que provea la más alta calidad en sus líneas de productos y la adecuada atención visual de cada uno de nuestros clientes a lo largo de sus vidas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ route('empresa') }}" class="btn btn-jr-outline">Conoce más sobre nosotros</a>
+        </div>
+    </div>
+</section>
+
 {{-- ===================== CATEGORÍAS ===================== --}}
 <section class="jr-section">
     <div class="container">
@@ -86,7 +115,7 @@
 {{-- ===================== PROGRESIVOS PREMIUM (VARILUX) ===================== --}}
 <section class="jr-section jr-bg-2">
     <div class="container">
-        <div class="row align-items-center g-5">
+        <div class="row align-items-center g-4">
             <div class="col-lg-5">
                 <p class="jr-eyebrow mb-2">Progresivos de alta gama</p>
                 <h2 class="mb-3" style="font-size:clamp(1.9rem,4vw,2.6rem)">La diferencia se llama Varilux</h2>
@@ -121,7 +150,7 @@
 {{-- ===================== TRATAMIENTOS (CRIZAL) ===================== --}}
 <section class="jr-section">
     <div class="container">
-        <div class="row align-items-center g-5 flex-lg-row-reverse">
+        <div class="row align-items-center g-4 flex-lg-row-reverse">
             <div class="col-lg-5">
                 <p class="jr-eyebrow mb-2">Protección para tus lentes</p>
                 <h2 class="mb-3" style="font-size:clamp(1.9rem,4vw,2.6rem)">Crizal: a ver bien en todo momento</h2>

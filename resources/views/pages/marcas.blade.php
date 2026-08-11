@@ -17,7 +17,7 @@
 {{-- ===================== VARILUX ===================== --}}
 <section class="jr-section">
     <div class="container">
-        <div class="row align-items-center g-5 mb-5">
+        <div class="row align-items-center g-4 mb-5">
             <div class="col-lg-6">
                 <p class="jr-eyebrow mb-2">Progresivos</p>
                 <h2 class="mb-3" style="font-size:clamp(1.8rem,4vw,2.6rem)">Varilux, el progresivo n.º 1 del mundo</h2>
@@ -49,18 +49,18 @@
         {{-- Line-up Varilux --}}
         <div class="row g-3">
             @foreach ($varilux as $d)
-                <div class="col-6 col-lg-3 jr-reveal">
-                    <div class="jr-card h-100">
-                        <div class="jr-card__media">
-                            <img src="{{ asset($d->imagen ?? 'img/varilux-comfort.jpg') }}" alt="{{ $d->nombre }} ({{ $d->material }})" loading="lazy">
-                        </div>
-                        <div class="jr-card__body">
-                            <span class="jr-tag mb-2 d-inline-block">{{ $d->material }}</span>
-                            <h3 class="h6 mb-1">{{ $d->nombre }}</h3>
-                            <p class="jr-card__price mb-0 small">${{ number_format($d->precio, 0) }} MXN</p>
-                        </div>
+            <div class="col-6 col-lg-3 jr-reveal">
+                <div class="jr-card h-100">
+                    <div class="jr-card__media">
+                        <img src="{{ asset($d->imagen ?? 'img/varilux-comfort.jpg') }}" alt="{{ $d->nombre }} ({{ $d->material }})" loading="lazy">
+                    </div>
+                    <div class="jr-card__body">
+                        <span class="jr-tag mb-2 d-inline-block">{{ $d->material }}</span>
+                        <h3 class="h6 mb-1">{{ $d->nombre }}</h3>
+                        <p class="jr-card__price mb-0 small">${{ number_format($d->precio, 0) }} MXN</p>
                     </div>
                 </div>
+            </div>
             @endforeach
         </div>
     </div>
@@ -69,7 +69,7 @@
 {{-- ===================== CRIZAL ===================== --}}
 <section class="jr-section jr-bg-2" id="tratamientos">
     <div class="container">
-        <div class="row align-items-center g-5 mb-5 flex-lg-row-reverse">
+        <div class="row align-items-center g-4 mb-5 flex-lg-row-reverse">
             <div class="col-lg-6">
                 <p class="jr-eyebrow mb-2">Tratamientos</p>
                 <h2 class="mb-3" style="font-size:clamp(1.8rem,4vw,2.6rem)">Crizal: protección de pies a cabeza para tus lentes</h2>
@@ -103,22 +103,22 @@
                 </thead>
                 <tbody>
                     @foreach ($comparativa as $t)
-                        <tr>
-                            <th scope="row">
-                                {{ $t->nombre }}
-                                @if ($t->premium)<i class="fa-solid fa-star jr-text-gold ms-1" title="Premium" style="font-size:.7rem"></i>@endif
-                            </th>
-                            @foreach ($t->puntuaciones() as $valor)
-                                <td>
-                                    <span class="jr-score" role="img" aria-label="{{ $valor }} de 3">
-                                        @for ($i = 1; $i <= 3; $i++)
-                                            <span class="{{ $i <= $valor ? 'on' . ($t->premium ? ' gold' : '') : '' }}"></span>
-                                        @endfor
-                                    </span>
-                                </td>
-                            @endforeach
-                            <td class="is-price">${{ number_format($t->precio, 0) }}</td>
-                        </tr>
+                    <tr>
+                        <th scope="row">
+                            {{ $t->nombre }}
+                            @if ($t->premium)<i class="fa-solid fa-star jr-text-gold ms-1" title="Premium" style="font-size:.7rem"></i>@endif
+                        </th>
+                        @foreach ($t->puntuaciones() as $valor)
+                        <td>
+                            <span class="jr-score" role="img" aria-label="{{ $valor }} de 3">
+                                @for ($i = 1; $i <= 3; $i++)
+                                    <span class="{{ $i <= $valor ? 'on' . ($t->premium ? ' gold' : '') : '' }}"></span>
+                            @endfor
+                            </span>
+                        </td>
+                        @endforeach
+                        <td class="is-price">${{ number_format($t->precio, 0) }}</td>
+                    </tr>
                     @endforeach
                 </tbody>
             </table>

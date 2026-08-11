@@ -20,25 +20,31 @@
         <div class="row g-4 g-lg-5">
             <div class="col-lg-7">
                 <div id="jr-configurator" class="jr-config">
-                    {{-- Paso 1 --}}
+                    {{-- Paso 1 — Armazón (obligatorio) --}}
                     <div class="jr-config__step">
-                        <div class="jr-config__label mb-3"><span class="jr-config__num">1</span> Tipo de lente</div>
-                        <div class="jr-chips" data-step="tipo"></div>
+                        <div class="jr-config__label mb-3"><span class="jr-config__num">1</span> Armazón</div>
+                        <div class="jr-frame-grid" data-step="armazon" role="listbox" aria-label="Elige un armazón"></div>
+                        <p class="jr-text-muted mb-0 mt-2 small" data-armazon-hint>Elige el modelo de armazón que más te guste. El armazón va incluido.</p>
                     </div>
                     {{-- Paso 2 --}}
                     <div class="jr-config__step">
-                        <div class="jr-config__label mb-3"><span class="jr-config__num">2</span> Diseño y material</div>
-                        <div class="jr-chips" data-step="diseno"></div>
-                        <p class="jr-text-muted mb-0 mt-2 small" data-diseno-empty>Primero elige un tipo de lente.</p>
+                        <div class="jr-config__label mb-3"><span class="jr-config__num">2</span> Tipo de lente</div>
+                        <div class="jr-chips" data-step="tipo"></div>
                     </div>
                     {{-- Paso 3 --}}
                     <div class="jr-config__step">
-                        <div class="jr-config__label mb-3"><span class="jr-config__num">3</span> Tratamiento Antireflejante <span class="jr-text-muted fw-normal small">(opcional)</span></div>
-                        <div class="jr-chips" data-step="tratamiento"></div>
+                        <div class="jr-config__label mb-3"><span class="jr-config__num">3</span> Diseño y material</div>
+                        <div class="jr-chips" data-step="diseno"></div>
+                        <p class="jr-text-muted mb-0 mt-2 small" data-diseno-empty>Primero elige un tipo de lente.</p>
                     </div>
                     {{-- Paso 4 --}}
                     <div class="jr-config__step">
-                        <div class="jr-config__label mb-3"><span class="jr-config__num">4</span> Tratamiento Fotocromático <span class="jr-text-muted fw-normal small">(opcional)</span></div>
+                        <div class="jr-config__label mb-3"><span class="jr-config__num">4</span> Tratamiento <span class="jr-text-muted fw-normal small">(opcional)</span></div>
+                        <div class="jr-chips" data-step="tratamiento"></div>
+                    </div>
+                    {{-- Paso 5 --}}
+                    <div class="jr-config__step">
+                        <div class="jr-config__label mb-3"><span class="jr-config__num">5</span> Extra <span class="jr-text-muted fw-normal small">(opcional)</span></div>
                         <div class="jr-chips" data-step="extra"></div>
                     </div>
                     {{-- Total --}}
