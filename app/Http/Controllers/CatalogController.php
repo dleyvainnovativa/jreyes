@@ -39,17 +39,17 @@ class CatalogController extends Controller
         $configData = [
             'whatsapp' => config('services.whatsapp.number'),
             'logo' => asset($logo),
-            'armazones' => $frames->map(fn ($f) => [
+            'armazones' => $frames->map(fn($f) => [
                 'numero' => $f->numero,
                 'nombre' => $f->nombre,
                 'precio' => (float) $f->precio,
                 'imagen' => asset($f->imagen ?: $logo),
             ])->values(),
-            'tipos' => $lensTypes->map(fn ($t) => [
+            'tipos' => $lensTypes->map(fn($t) => [
                 'slug' => $t->slug,
                 'nombre' => $t->nombre,
                 'descripcion' => $t->resumen,
-                'disenos' => $t->designs->map(fn ($d) => [
+                'disenos' => $t->designs->map(fn($d) => [
                     'slug' => $d->slug,
                     'nombre' => $d->nombre,
                     'material' => $d->material,
@@ -59,7 +59,7 @@ class CatalogController extends Controller
                     'imagen' => asset($d->imagen ?: $logo),
                 ])->values(),
             ])->values(),
-            'tratamientos' => $treatments->map(fn ($t) => [
+            'tratamientos' => $treatments->map(fn($t) => [
                 'slug' => $t->slug,
                 'nombre' => $t->nombre,
                 'familia' => $t->familia,
@@ -67,7 +67,7 @@ class CatalogController extends Controller
                 'descripcion' => $t->descripcion,
                 'imagen' => asset($t->imagen ?: $logo),
             ])->values(),
-            'extras' => $extras->map(fn ($t) => [
+            'extras' => $extras->map(fn($t) => [
                 'slug' => $t->slug,
                 'nombre' => $t->nombre,
                 'familia' => $t->familia,
@@ -116,5 +116,11 @@ class CatalogController extends Controller
         $whatsapp = config('services.whatsapp.number');
 
         return view('pages.empresa', compact('whatsapp'));
+    }
+    public function programas()
+    {
+        $whatsapp = config('services.whatsapp.number');
+
+        return view('pages.programas', compact('whatsapp'));
     }
 }

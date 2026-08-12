@@ -10,20 +10,17 @@
     <div class="container">
         <div class="row align-items-center g-4">
             <div class="col-lg-6">
-                <p class="jr-eyebrow mb-3">Óptica · Veracruz</p>
+                <!-- <p class="jr-eyebrow mb-3">Óptica · Veracruz</p> -->
                 <h1 class="jr-hero__title mb-4">
-                    Mejora <em>lo que ves</em>,<br>sin gastar de más.
+                    <em>Personaliza</em>,<br>tus lentes en un solo click
                 </h1>
                 <p class="jr-hero__lead mb-4">
-                    Lentes graduados a la medida, progresivos de alta gama y lentes de contacto.
+                    Lentes graduados a la medida, monofocales, bifocales, progresivos y lentes de contacto.
                     Arma tus lentes y conoce el precio al instante.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
-                    <a href="{{ route('lentes') }}" class="btn btn-jr-primary btn-lg">
-                        <i class="fa-solid fa-glasses me-2"></i> Arma tus lentes
-                    </a>
-                    <a href="{{ route('contacto') }}" class="btn btn-jr-outline btn-lg">
-                        Agenda tu examen
+                    <a href="{{ route('contacto') }}" class="btn btn-jr-primary btn-lg">
+                        <i class="fa-solid fa-glasses me-2"></i> Agenda tu cita
                     </a>
                 </div>
             </div>

@@ -19,6 +19,7 @@ Route::get('/lentes-de-contacto', [CatalogController::class, 'contacto'])->name(
 Route::get('/paquetes', [CatalogController::class, 'paquetes'])->name('paquetes');
 
 Route::get('/empresa', [CatalogController::class, 'empresa'])->name('empresa');
+Route::get('/programas', [CatalogController::class, 'programas'])->name('programas');
 
 Route::get('/contacto', [AppointmentController::class, 'create'])->name('contacto');
 Route::post('/contacto', [AppointmentController::class, 'store'])->name('contacto.store');

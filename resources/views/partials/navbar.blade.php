@@ -8,7 +8,7 @@
 
         {{-- Botón que abre el offcanvas en móvil --}}
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#jrNav"
-                aria-controls="jrNav" aria-label="Abrir menú">
+            aria-controls="jrNav" aria-label="Abrir menú">
             <i class="fa-solid fa-bars text-light"></i>
         </button>
 
@@ -23,25 +23,25 @@
             <div class="offcanvas-body">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-0 gap-2">
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('empresa') ? 'active' : '' }}" href="{{ route('empresa') }}">Conócenos</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('lentes') ? 'active' : '' }}" href="{{ route('lentes') }}">Lentes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('marcas') ? 'active' : '' }}" href="{{ route('marcas') }}">Marcas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('lentes-contacto') ? 'active' : '' }}" href="{{ route('lentes-contacto') }}">Lentes de contacto</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('paquetes') ? 'active' : '' }}" href="{{ route('paquetes') }}">Paquetes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('empresa') ? 'active' : '' }}" href="{{ route('empresa') }}">Empresa</a>
+                        <a class="nav-link {{ request()->routeIs('programas') ? 'active' : '' }}" href="{{ route('programas') }}">Programas</a>
                     </li>
-                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                    <!-- <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
                         <a class="btn btn-jr-primary w-100" href="{{ route('contacto') }}">
                             <i class="fa-solid fa-calendar-check me-1"></i> Agenda tu cita
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
         </div>
