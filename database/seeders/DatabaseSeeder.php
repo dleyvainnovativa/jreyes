@@ -11,6 +11,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CatalogSeeder::class,
             FramesSeeder::class,
+            // El árbol del configurador toma precios de CatalogSeeder,
+            // así que debe ejecutarse DESPUÉS de él.
+            CatalogTreeSeeder::class,
         ]);
     }
 }

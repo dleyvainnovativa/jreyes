@@ -28,20 +28,49 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('empresa') ? 'active' : '' }}" href="{{ route('empresa') }}">Conócenos</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('lentes') ? 'active' : '' }}" href="{{ route('lentes') }}">Lentes</a>
+
+                    {{-- Lentes con submenú: tipos de mica + lentes de contacto --}}
+                    <li class="nav-item dropdown jr-dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('lentes') || request()->routeIs('lentes-contacto') ? 'active' : '' }}"
+                            href="{{ route('lentes') }}" id="jrLentesMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Lentes
+                        </a>
+                        <ul class="dropdown-menu jr-dropdown-menu" aria-labelledby="jrLentesMenu">
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('lentes') && request('tipo','monofocal')==='monofocal' ? 'active' : '' }}"
+                                    href="{{ route('lentes', ['tipo' => 'monofocal']) }}">
+                                    <i class="fa-solid fa-circle me-2"></i> Monofocales
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('lentes') && request('tipo')==='bifocal' ? 'active' : '' }}"
+                                    href="{{ route('lentes', ['tipo' => 'bifocal']) }}">
+                                    <i class="fa-solid fa-circle-half-stroke me-2"></i> Bifocales
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('lentes') && request('tipo')==='progresiva' ? 'active' : '' }}"
+                                    href="{{ route('lentes', ['tipo' => 'progresiva']) }}">
+                                    <i class="fa-solid fa-layer-group me-2"></i> Progresivos
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item {{ request()->routeIs('lentes-contacto') ? 'active' : '' }}"
+                                    href="{{ route('lentes-contacto') }}">
+                                    <i class="fa-solid fa-eye me-2"></i> Lentes de contacto
+                                </a>
+                            </li>
+                        </ul>
                     </li>
+
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('paquetes') ? 'active' : '' }}" href="{{ route('paquetes') }}">Paquetes</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('programas') ? 'active' : '' }}" href="{{ route('programas') }}">Programas</a>
                     </li>
-                    <!-- <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-                        <a class="btn btn-jr-primary w-100" href="{{ route('contacto') }}">
-                            <i class="fa-solid fa-calendar-check me-1"></i> Agenda tu cita
-                        </a>
-                    </li> -->
                 </ul>
             </div>
         </div>

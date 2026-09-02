@@ -1,14 +1,19 @@
 /* --------------------------------------------------------------------------
    configurator.js — "Arma tus lentes".
-   Lee los datos del catálogo desde un <script type="application/json"> y
-   calcula el precio en vivo. No hace peticiones al backend: los precios son
-   estáticos y vienen serializados desde el controlador.
 
-   Pasos: 1) tipo  2) diseño/material  3) tratamiento (opcional)
-          4) extra aditivo, p. ej. fotocromático (opcional)
+   Recorre un ÁRBOL de catálogo (profundidad variable) servido como JSON:
+     armazón (paso fijo 1) → nivel → material/diseño → ... → tratamiento
 
-   Además arma un mensaje de WhatsApp con la selección y actualiza en vivo
-   la tarjeta de resumen (imagen + descripciones apiladas).
+   Cada tipo de lente tiene su propia profundidad (bifocal añade un paso de
+   diseño). No hay lógica especial por tipo: el configurador simplemente
+   muestra los HIJOS del nodo elegido en cada paso. Cuando el nodo elegido
+   no tiene hijos, es una hoja (tratamiento) y la configuración termina.
+
+   El total suma solo los nodos con precio > 0; los de precio 0 se muestran
+   como "Precio en tienda" y no bloquean.
+
+   El resumen muestra UNA IMAGEN POR CADA SELECCIÓN que tenga imagen propia
+   (galería apilada), no una sola imagen.
    -------------------------------------------------------------------------- */
 
 const MXN = new Intl.NumberFormat('es-MX', {
@@ -17,6 +22,14 @@ const MXN = new Intl.NumberFormat('es-MX', {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
 });
+
+// Etiqueta legible del paso según el "kind" del nodo.
+const KIND_LABEL = {
+  nivel: 'Nivel',
+  diseno: 'Diseño',
+  material: 'Material',
+  tratamiento: 'Tratamiento',
+};
 
 export function initConfigurator() {
   const root = document.getElementById('jr-configurator');
@@ -32,46 +45,29 @@ export function initConfigurator() {
     return;
   }
 
-  const state = { armazon: null, tipo: null, diseno: null, tratamiento: null, extra: null };
-
-  // Imagen mostrada en el resumen. "Gana" la última selección que tenga
-  // imagen propia; si el elemento elegido no trae imagen, se conserva la
-  // anterior (no se vuelve al logo a media configuración).
-  let lastImg = null;
-
-  const tipoWrap = root.querySelector('[data-step="tipo"]');
   const armazonWrap = root.querySelector('[data-step="armazon"]');
-  const disenoWrap = root.querySelector('[data-step="diseno"]');
-  const tratWrap = root.querySelector('[data-step="tratamiento"]');
-  const extraWrap = root.querySelector('[data-step="extra"]');
+  const stepsWrap = root.querySelector('[data-dynamic-steps]');
   const priceEl = root.querySelector('[data-total]');
   const breakdownEl = root.querySelector('[data-breakdown]');
   const waBtn = root.querySelector('[data-wa-config]');
 
-  // Tarjeta de resumen (columna derecha, fuera de #jr-configurator)
+  // Resumen
   const summary = document.getElementById('jr-config-summary');
-  const summaryImg = summary?.querySelector('[data-summary-img]');
+  const gallery = summary?.querySelector('[data-summary-gallery]');
+  const placeholder = summary?.querySelector('[data-summary-placeholder]');
   const summaryEmpty = summary?.querySelector('[data-summary-empty]');
   const summaryDetail = summary?.querySelector('[data-summary-detail]');
   const summaryList = summary?.querySelector('[data-summary-list]');
-  const defaultImg = data.logo;
 
-  function chip(label, sublabel, onClick, group) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'jr-chip';
-    btn.setAttribute('aria-pressed', 'false');
-    btn.dataset.group = group;
-    btn.innerHTML = sublabel ? `${label}<small>${sublabel}</small>` : label;
-    btn.addEventListener('click', () => onClick(btn));
-    return btn;
-  }
+  // Estado: armazón + una cadena de nodos elegidos (uno por nivel del árbol).
+  const state = {
+    armazon: null,
+    path: [], // [{nodo, stepIndex}] en orden de profundidad
+  };
 
-  function clearPressed(container) {
-    container.querySelectorAll('.jr-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
-  }
-
-  // Paso 1 — armazón (obligatorio). Cuadrícula de miniaturas.
+  /* ---------------------------------------------------------------------- */
+  /* Paso 1 — Armazón (obligatorio)                                         */
+  /* ---------------------------------------------------------------------- */
   if (armazonWrap && Array.isArray(data.armazones)) {
     data.armazones.forEach((f) => {
       const cell = document.createElement('button');
@@ -87,170 +83,257 @@ export function initConfigurator() {
         armazonWrap.querySelectorAll('.jr-frame').forEach((c) => c.setAttribute('aria-selected', 'false'));
         cell.setAttribute('aria-selected', 'true');
         state.armazon = f;
-        if (f.imagen) lastImg = f.imagen; // el armazón ancla la vista previa
         recalc();
       });
       armazonWrap.appendChild(cell);
     });
   }
 
-  // Paso 2 — tipo de lente
-  data.tipos.forEach((tipo) => {
-    const btn = chip(tipo.nombre, null, () => {
-      clearPressed(tipoWrap);
-      btn.setAttribute('aria-pressed', 'true');
-      state.tipo = tipo;
-      state.diseno = null;
-      // al cambiar de tipo, la vista previa vuelve al armazón elegido (o al logo)
-      lastImg = state.armazon ? state.armazon.imagen : null;
-      renderDesigns(tipo);
-      recalc();
-    }, 'tipo');
-    tipoWrap.appendChild(btn);
-  });
+  /* ---------------------------------------------------------------------- */
+  /* Pasos dinámicos: uno por nivel de profundidad del árbol                */
+  /* ---------------------------------------------------------------------- */
 
-  // Paso 2 — diseño / material (depende del tipo)
-  function renderDesigns(tipo) {
-    disenoWrap.innerHTML = '';
-    tipo.disenos.forEach((d) => {
-      const sub = d.material + (d.premium ? ' · Premium' : '');
-      const btn = chip(d.nombre, sub, () => {
-        clearPressed(disenoWrap);
-        btn.setAttribute('aria-pressed', 'true');
-        state.diseno = d;
-        if (d.imagen) lastImg = d.imagen;
-        recalc();
-      }, 'diseno');
-      disenoWrap.appendChild(btn);
-    });
-    root.querySelector('[data-diseno-empty]')?.classList.add('d-none');
+  // Número de paso mostrado (el armazón es el 1).
+  const stepNumberBase = 2;
+
+  // Crea (o reutiliza) el contenedor de un paso en la profundidad dada.
+  function ensureStepBlock(depth, kind) {
+    let block = stepsWrap.querySelector(`[data-depth="${depth}"]`);
+    if (!block) {
+      block = document.createElement('div');
+      block.className = 'jr-config__step';
+      block.dataset.depth = String(depth);
+      block.innerHTML = `
+        <div class="jr-config__label mb-3">
+          <span class="jr-config__num">${stepNumberBase + depth}</span>
+          <span data-step-title></span>
+        </div>
+        <div class="jr-chips" data-step-chips></div>`;
+      stepsWrap.appendChild(block);
+    }
+    block.querySelector('[data-step-title]').textContent = KIND_LABEL[kind] || 'Opción';
+    return block;
   }
 
-  // Paso 3 — tratamiento (opcional)
-  const noneTrat = chip('Sin tratamiento', 'Solo la mica', (btn) => {
-    clearPressed(tratWrap);
-    btn.setAttribute('aria-pressed', 'true');
-    state.tratamiento = null;
-    recalc();
-  }, 'trat');
-  tratWrap.appendChild(noneTrat);
+  // Elimina los pasos con profundidad > depth (cuando se cambia una elección
+  // más arriba, los pasos inferiores dejan de tener sentido).
+  function pruneStepsBelow(depth) {
+    stepsWrap.querySelectorAll('.jr-config__step').forEach((b) => {
+      if (Number(b.dataset.depth) > depth) b.remove();
+    });
+    state.path = state.path.slice(0, depth + 1);
+  }
 
-  data.tratamientos.forEach((t) => {
-    const btn = chip(t.nombre, `+ ${MXN.format(t.precio)}`, () => {
-      clearPressed(tratWrap);
-      btn.setAttribute('aria-pressed', 'true');
-      state.tratamiento = t;
-      if (t.imagen) lastImg = t.imagen;
-      recalc();
-    }, 'trat');
-    tratWrap.appendChild(btn);
-  });
+  function chip(nodo, onClick) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'jr-chip';
+    btn.setAttribute('aria-pressed', 'false');
+    const sub = precioSub(nodo);
+    btn.innerHTML = sub ? `${nodo.nombre}<small>${sub}</small>` : nodo.nombre;
+    btn.addEventListener('click', () => onClick(btn, nodo));
+    return btn;
+  }
 
-  // Paso 4 — extra aditivo (opcional)
-  const noneExtra = chip('Sin extra', 'Ninguno', (btn) => {
-    clearPressed(extraWrap);
-    btn.setAttribute('aria-pressed', 'true');
-    state.extra = null;
-    recalc();
-  }, 'extra');
-  extraWrap.appendChild(noneExtra);
+  // Sublínea del chip: precio si lo hay, o "Precio en tienda".
+  function precioSub(nodo) {
+    if (nodo.kind === 'nivel' || nodo.kind === 'diseno') return null;
+    if (nodo.precio > 0) {
+      return (nodo.es_extra ? '+ ' : '') + MXN.format(nodo.precio);
+    }
+    return 'Precio en tienda';
+  }
 
-  (data.extras || []).forEach((t) => {
-    const btn = chip(t.nombre, `+ ${MXN.format(t.precio)}`, () => {
-      clearPressed(extraWrap);
-      btn.setAttribute('aria-pressed', 'true');
-      state.extra = t;
-      if (t.imagen) lastImg = t.imagen;
-      recalc();
-    }, 'extra');
-    extraWrap.appendChild(btn);
-  });
+  // Renderiza los hijos de un nodo como un paso a la profundidad dada.
+  function renderStep(depth, hijos) {
+    if (!hijos || !hijos.length) return; // hoja: no hay más pasos
+    const kind = hijos[0].kind;
+    const block = ensureStepBlock(depth, kind);
+    const chipsWrap = block.querySelector('[data-step-chips]');
+    chipsWrap.innerHTML = '';
 
-  // --- Resumen en vivo -----------------------------------------------------
-  function summaryRow(eyebrow, nombre, descripcion, precio) {
-    const price = precio != null ? `<span class="jr-text-gold fw-semibold ms-2">${MXN.format(precio)}</span>` : '';
-    const desc = descripcion ? `<p class="jr-text-muted small mb-0 mt-1">${descripcion}</p>` : '';
+    hijos.forEach((nodo) => {
+      const btn = chip(nodo, (b) => {
+        chipsWrap.querySelectorAll('.jr-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+        b.setAttribute('aria-pressed', 'true');
+
+        // Al elegir en este paso, poda los inferiores y fija la elección.
+        pruneStepsBelow(depth);
+        state.path[depth] = nodo;
+
+        // Si tiene hijos, abre el siguiente paso.
+        if (nodo.hijos && nodo.hijos.length) {
+          renderStep(depth + 1, nodo.hijos);
+        }
+        recalc();
+      });
+      chipsWrap.appendChild(btn);
+    });
+  }
+
+  // Arranca los pasos dinámicos con las raíces del árbol (nivel).
+  function initTreeSteps() {
+    stepsWrap.innerHTML = '';
+    state.path = [];
+    renderStep(0, data.arbol || []);
+  }
+
+  /* ---------------------------------------------------------------------- */
+  /* Resumen con galería multi-imagen                                       */
+  /* ---------------------------------------------------------------------- */
+  function selectedItems() {
+    // Devuelve la lista ordenada de selecciones para el resumen.
+    const items = [];
+    if (state.armazon) {
+      items.push({
+        eyebrow: 'Armazón',
+        nombre: state.armazon.nombre,
+        descripcion: 'Armazón incluido.',
+        precio: null,
+        imagen: state.armazon.imagen || null,
+      });
+    }
+    state.path.forEach((nodo) => {
+      if (!nodo) return;
+      items.push({
+        eyebrow: KIND_LABEL[nodo.kind] || 'Opción',
+        nombre: nodo.nombre,
+        descripcion: nodo.descripcion || null,
+        precio: nodo.precio > 0 ? nodo.precio : null,
+        enTienda: nodo.precio === 0 && (nodo.kind === 'material' || nodo.kind === 'tratamiento'),
+        es_extra: nodo.es_extra,
+        imagen: nodo.imagen || null,
+      });
+    });
+    return items;
+  }
+
+  function renderGallery(items) {
+    if (!gallery) return;
+    const withImg = items.filter((it) => it.imagen);
+
+    if (!withImg.length) {
+      // Sin imágenes propias: muestra el placeholder (logo).
+      if (placeholder) placeholder.style.display = '';
+      gallery.querySelectorAll('[data-summary-thumb]').forEach((n) => n.remove());
+      return;
+    }
+
+    if (placeholder) placeholder.style.display = 'none';
+
+    // Reconciliar miniaturas por src (evita parpadeo al recalcular).
+    const wanted = withImg.map((it) => it.imagen);
+    gallery.querySelectorAll('[data-summary-thumb]').forEach((thumb) => {
+      if (!wanted.includes(thumb.dataset.src)) thumb.remove();
+    });
+
+    withImg.forEach((it, i) => {
+      let thumb = gallery.querySelector(`[data-summary-thumb][data-src="${cssEscape(it.imagen)}"]`);
+      if (!thumb) {
+        thumb = document.createElement('figure');
+        thumb.className = 'jr-summary-thumb';
+        thumb.dataset.summaryThumb = '';
+        thumb.dataset.src = it.imagen;
+        thumb.innerHTML = `
+          <img src="${it.imagen}" alt="${it.nombre}" loading="lazy"
+               onerror="this.closest('.jr-summary-thumb').remove()">
+          <figcaption>${it.eyebrow}</figcaption>`;
+        gallery.appendChild(thumb);
+      }
+      thumb.style.order = String(i);
+    });
+  }
+
+  function cssEscape(s) {
+    return String(s).replace(/["\\]/g, '\\$&');
+  }
+
+  function summaryRow(it) {
+    let price = '';
+    if (it.precio != null) {
+      price = `<span class="jr-text-gold fw-semibold ms-2">${(it.es_extra ? '+ ' : '') + MXN.format(it.precio)}</span>`;
+    } else if (it.enTienda) {
+      price = `<span class="jr-text-muted small ms-2">Precio en tienda</span>`;
+    }
+    const desc = it.descripcion ? `<p class="jr-text-muted small mb-0 mt-1">${it.descripcion}</p>` : '';
     return `
       <div>
-        <p class="jr-eyebrow mb-1">${eyebrow}</p>
+        <p class="jr-eyebrow mb-1">${it.eyebrow}</p>
         <div class="d-flex align-items-baseline justify-content-between">
-          <span class="fw-semibold">${nombre}</span>${price}
+          <span class="fw-semibold">${it.nombre}</span>${price}
         </div>
         ${desc}
       </div>`;
   }
 
-  function renderSummary() {
+  function renderSummary(items) {
     if (!summary) return;
-    const anySelection = state.armazon || state.tipo || state.diseno || state.tratamiento || state.extra;
+    const any = items.length > 0;
 
-    // Imagen: gana la última selección con imagen propia; si aún no hay
-    // ninguna, muestra el logo. Al reiniciar (sin selección) vuelve al logo.
-    const targetImg = anySelection ? (lastImg || defaultImg) : defaultImg;
-    if (summaryImg && summaryImg.getAttribute('src') !== targetImg) {
-      summaryImg.style.opacity = '0';
-      setTimeout(() => {
-        summaryImg.src = targetImg;
-        summaryImg.style.opacity = '1';
-      }, 150);
-    }
+    renderGallery(items);
 
-    if (!anySelection) {
+    if (!any) {
       summaryEmpty?.classList.remove('d-none');
       summaryDetail?.classList.add('d-none');
       return;
     }
-
     summaryEmpty?.classList.add('d-none');
     summaryDetail?.classList.remove('d-none');
-
-    const rows = [];
-    if (state.armazon) rows.push(summaryRow('Armazón', state.armazon.nombre, 'Armazón incluido.', null));
-    if (state.tipo) rows.push(summaryRow('Tipo', state.tipo.nombre, state.tipo.descripcion, null));
-    if (state.diseno) rows.push(summaryRow('Diseño', `${state.diseno.nombre} · ${state.diseno.material}`, state.diseno.descripcion, state.diseno.precio));
-    if (state.tratamiento) rows.push(summaryRow('Tratamiento', state.tratamiento.nombre, state.tratamiento.descripcion, state.tratamiento.precio));
-    if (state.extra) rows.push(summaryRow('Extra', state.extra.nombre, state.extra.descripcion, state.extra.precio));
-    if (summaryList) summaryList.innerHTML = rows.join('');
+    if (summaryList) summaryList.innerHTML = items.map(summaryRow).join('');
   }
 
-  // --- Mensaje de WhatsApp -------------------------------------------------
+  /* ---------------------------------------------------------------------- */
+  /* WhatsApp                                                               */
+  /* ---------------------------------------------------------------------- */
   function buildWhatsAppUrl(total) {
     const numero = (data.whatsapp || '').replace(/\D/g, '');
     const l = [];
-    l.push('¡Hola! Quiero cotizar unos lentes con esta configuración:');
+    l.push(`¡Hola! Quiero cotizar unos lentes ${data.tipoNombre?.toLowerCase() || ''} con esta configuración:`);
     if (state.armazon) l.push(`• Armazón: ${state.armazon.nombre} (incluido)`);
-    if (state.tipo) l.push(`• Tipo: ${state.tipo.nombre}`);
-    if (state.diseno) l.push(`• Diseño: ${state.diseno.nombre} (${state.diseno.material}) — ${MXN.format(state.diseno.precio)}`);
-    if (state.tratamiento) l.push(`• Tratamiento: ${state.tratamiento.nombre} — ${MXN.format(state.tratamiento.precio)}`);
-    if (state.extra) l.push(`• Extra: ${state.extra.nombre} — ${MXN.format(state.extra.precio)}`);
+    state.path.forEach((nodo) => {
+      if (!nodo) return;
+      const etiqueta = KIND_LABEL[nodo.kind] || 'Opción';
+      const precio = nodo.precio > 0 ? ` — ${(nodo.es_extra ? '+ ' : '') + MXN.format(nodo.precio)}` : ' — precio en tienda';
+      l.push(`• ${etiqueta}: ${nodo.nombre}${precio}`);
+    });
     l.push(`Total estimado (micas): ${MXN.format(total)}`);
     const texto = encodeURIComponent(l.join('\n'));
     return numero ? `https://wa.me/${numero}?text=${texto}` : `https://wa.me/?text=${texto}`;
   }
 
+  /* ---------------------------------------------------------------------- */
+  /* Recalcular                                                             */
+  /* ---------------------------------------------------------------------- */
   function recalc() {
-    const micaPrecio = state.diseno ? state.diseno.precio : 0;
-    const tratPrecio = state.tratamiento ? state.tratamiento.precio : 0;
-    const extraPrecio = state.extra ? state.extra.precio : 0;
-    const total = micaPrecio + tratPrecio + extraPrecio;
+    const items = selectedItems();
 
+    // Total: suma de nodos del path con precio > 0.
+    const total = state.path.reduce((sum, n) => sum + (n && n.precio > 0 ? n.precio : 0), 0);
     priceEl.textContent = MXN.format(total);
 
-    // Desglose corto bajo el precio
+    // Desglose corto
     if (!state.armazon) {
       breakdownEl.textContent = 'Elige un armazón para comenzar.';
-    } else if (!state.diseno) {
-      breakdownEl.textContent = 'Elige el tipo y el diseño para ver tu precio.';
+    } else if (!state.path.length || !state.path[0]) {
+      breakdownEl.textContent = 'Elige el nivel de la mica para ver tu precio.';
     } else {
-      const lineas = [`Armazón incluido`, `Mica ${MXN.format(micaPrecio)}`];
-      if (state.tratamiento) lineas.push(`Tratamiento ${MXN.format(tratPrecio)}`);
-      if (state.extra) lineas.push(`Extra ${MXN.format(extraPrecio)}`);
-      breakdownEl.innerHTML = '<span class="jr-text-muted">' + lineas.join(' + ') + '</span>';
+      const partes = ['Armazón incluido'];
+      state.path.forEach((n) => {
+        if (!n) return;
+        if (n.precio > 0) partes.push(`${n.nombre} ${MXN.format(n.precio)}`);
+      });
+      breakdownEl.innerHTML = '<span class="jr-text-muted">' + partes.join(' + ') + '</span>';
     }
 
-    // Botón de WhatsApp: activo solo con armazón y diseño elegidos.
+    // El botón se activa con armazón + al menos una hoja (tratamiento)
+    // o un material elegido con precio. Regla práctica: armazón + último
+    // nodo del path sin hijos (hoja) O material seleccionado.
+    const ultimo = state.path[state.path.length - 1];
+    const hojaElegida = ultimo && (!ultimo.hijos || !ultimo.hijos.length);
+    const listo = state.armazon && (hojaElegida || (ultimo && ultimo.kind === 'material'));
+
     if (waBtn) {
-      if (state.armazon && state.diseno) {
+      if (listo) {
         waBtn.href = buildWhatsAppUrl(total);
         waBtn.classList.remove('disabled');
         waBtn.removeAttribute('aria-disabled');
@@ -261,8 +344,10 @@ export function initConfigurator() {
       }
     }
 
-    renderSummary();
+    renderSummary(items);
   }
 
+  // Arranque
+  initTreeSteps();
   recalc();
 }

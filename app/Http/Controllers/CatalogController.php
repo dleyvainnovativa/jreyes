@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CatalogNode;
 use App\Models\ContactLensBrand;
 use App\Models\Frame;
 use App\Models\LensType;
 use App\Models\Package;
 use App\Models\Treatment;
+use Illuminate\Http\Request;
 
 class CatalogController extends Controller
 {
+    /** Tipos válidos del configurador y su etiqueta para el encabezado. */
+    private const TIPOS = [
+        'monofocal'  => 'Monofocales',
+        'bifocal'    => 'Bifocales',
+        'progresiva' => 'Progresivos',
+    ];
+
     /** Página de inicio. */
     public function home()
     {
@@ -21,63 +30,63 @@ class CatalogController extends Controller
         return view('pages.home', compact('lensTypes', 'premium', 'treatments'));
     }
 
-    /** Catálogo de lentes + configurador. */
-    public function lentes()
+    /**
+     * Catálogo de lentes + configurador.
+     * Acepta ?tipo=monofocal|bifocal|progresiva para filtrar el árbol.
+     * Sin parámetro (o inválido) muestra el primero disponible.
+     */
+    public function lentes(Request $request)
     {
-        $lensTypes = LensType::activos()->with('designs')->get();
-
-        // Tratamientos normales (paso 3) y extras aditivos como fotocromático (paso 4).
-        $treatments = Treatment::activos()->where('es_extra', false)->get();
-        $extras = Treatment::activos()->where('es_extra', true)->get();
-
-        // Armazones (paso 1, obligatorio). Precio incluido (0) por ahora.
-        $frames = Frame::activos()->get();
+        $tipo = $request->query('tipo');
+        if (!array_key_exists($tipo, self::TIPOS)) {
+            $tipo = array_key_first(self::TIPOS);
+        }
 
         $logo = 'img/logo-jreyes.png';
 
-        // Datos para el configurador (JSON en el cliente): sin llamadas al backend.
+        // Armazones (paso 1, obligatorio).
+        $frames = Frame::activos()->get();
+
+        // Árbol de catálogo del tipo elegido (raíces + descendientes).
+        $raices = CatalogNode::raices()->deTipo($tipo)->activos()
+            ->with('descendants')->get();
+
         $configData = [
             'whatsapp' => config('services.whatsapp.number'),
-            'logo' => asset($logo),
-            'armazones' => $frames->map(fn($f) => [
-                'numero' => $f->numero,
+            'logo'     => asset($logo),
+            'tipo'     => $tipo,
+            'tipoNombre' => self::TIPOS[$tipo],
+            'armazones' => $frames->map(fn ($f) => [
                 'nombre' => $f->nombre,
                 'precio' => (float) $f->precio,
                 'imagen' => asset($f->imagen ?: $logo),
             ])->values(),
-            'tipos' => $lensTypes->map(fn($t) => [
-                'slug' => $t->slug,
-                'nombre' => $t->nombre,
-                'descripcion' => $t->resumen,
-                'disenos' => $t->designs->map(fn($d) => [
-                    'slug' => $d->slug,
-                    'nombre' => $d->nombre,
-                    'material' => $d->material,
-                    'precio' => (float) $d->precio,
-                    'premium' => (bool) $d->premium,
-                    'descripcion' => $d->descripcion,
-                    'imagen' => asset($d->imagen ?: $logo),
-                ])->values(),
-            ])->values(),
-            'tratamientos' => $treatments->map(fn($t) => [
-                'slug' => $t->slug,
-                'nombre' => $t->nombre,
-                'familia' => $t->familia,
-                'precio' => (float) $t->precio,
-                'descripcion' => $t->descripcion,
-                'imagen' => asset($t->imagen ?: $logo),
-            ])->values(),
-            'extras' => $extras->map(fn($t) => [
-                'slug' => $t->slug,
-                'nombre' => $t->nombre,
-                'familia' => $t->familia,
-                'precio' => (float) $t->precio,
-                'descripcion' => $t->descripcion,
-                'imagen' => asset($t->imagen ?: $logo),
-            ])->values(),
+            // Árbol serializado: cada nodo lleva sus hijos.
+            'arbol' => $raices->map(fn ($n) => $this->serializeNode($n, $logo))->values(),
         ];
 
-        return view('pages.lentes', compact('lensTypes', 'treatments', 'extras', 'frames', 'configData'));
+        return view('pages.lentes', [
+            'tipos'       => self::TIPOS,
+            'tipoActual'  => $tipo,
+            'tipoNombre'  => self::TIPOS[$tipo],
+            'frames'      => $frames,
+            'configData'  => $configData,
+        ]);
+    }
+
+    /** Serializa un nodo del árbol (recursivo) para el JSON del cliente. */
+    private function serializeNode(CatalogNode $n, string $logo): array
+    {
+        return [
+            'slug'        => $n->slug,
+            'kind'        => $n->kind,
+            'nombre'      => $n->nombre,
+            'precio'      => (float) $n->precio,
+            'es_extra'    => (bool) $n->es_extra,
+            'descripcion' => $n->descripcion,
+            'imagen'      => $n->imagen ? asset($n->imagen) : null,
+            'hijos'       => $n->children->map(fn ($c) => $this->serializeNode($c, $logo))->values(),
+        ];
     }
 
     /** Marcas: Varilux y Crizal, más la tabla comparativa de tratamientos. */
@@ -117,6 +126,7 @@ class CatalogController extends Controller
 
         return view('pages.empresa', compact('whatsapp'));
     }
+
     public function programas()
     {
         $whatsapp = config('services.whatsapp.number');
