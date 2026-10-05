@@ -28,6 +28,7 @@ const KIND_LABEL = {
   nivel: 'Nivel',
   diseno: 'Diseño',
   material: 'Material',
+  linea: 'Línea',
   tratamiento: 'Tratamiento',
 };
 
@@ -135,12 +136,20 @@ export function initConfigurator() {
     return btn;
   }
 
-  // Sublínea del chip: precio si lo hay, o "Precio en tienda".
+  function tieneHijos(nodo) {
+    return Array.isArray(nodo.hijos) && nodo.hijos.length > 0;
+  }
+
+  // Sublínea del chip.
+  //  - Si tiene precio > 0 -> siempre lo muestra (aunque tenga hijos, como
+  //    las líneas Varilux, que cuestan y además llevan tratamientos).
+  //  - Si es agrupador puro (nivel/diseño, o precio 0 con hijos) -> nada.
+  //  - Si es una hoja con precio 0 -> "Precio en tienda".
   function precioSub(nodo) {
-    if (nodo.kind === 'nivel' || nodo.kind === 'diseno') return null;
     if (nodo.precio > 0) {
       return (nodo.es_extra ? '+ ' : '') + MXN.format(nodo.precio);
     }
+    if (nodo.kind === 'nivel' || nodo.kind === 'diseno' || tieneHijos(nodo)) return null;
     return 'Precio en tienda';
   }
 
@@ -195,12 +204,16 @@ export function initConfigurator() {
     }
     state.path.forEach((nodo) => {
       if (!nodo) return;
+      // "En tienda" solo para hojas de precio (sin hijos) con precio 0.
+      // Un material/nivel agrupador (con hijos) no muestra etiqueta de precio.
+      const esHoja = !tieneHijos(nodo);
+      const esAgrupadorPuro = nodo.kind === 'nivel' || nodo.kind === 'diseno';
       items.push({
         eyebrow: KIND_LABEL[nodo.kind] || 'Opción',
         nombre: nodo.nombre,
         descripcion: nodo.descripcion || null,
         precio: nodo.precio > 0 ? nodo.precio : null,
-        enTienda: nodo.precio === 0 && (nodo.kind === 'material' || nodo.kind === 'tratamiento'),
+        enTienda: nodo.precio === 0 && esHoja && !esAgrupadorPuro,
         es_extra: nodo.es_extra,
         imagen: nodo.imagen || null,
       });
@@ -325,12 +338,13 @@ export function initConfigurator() {
       breakdownEl.innerHTML = '<span class="jr-text-muted">' + partes.join(' + ') + '</span>';
     }
 
-    // El botón se activa con armazón + al menos una hoja (tratamiento)
-    // o un material elegido con precio. Regla práctica: armazón + último
-    // nodo del path sin hijos (hoja) O material seleccionado.
+    // El botón se activa con armazón + una hoja final (el último nodo del
+    // path no tiene hijos). Esto funciona para todos los tipos y
+    // profundidades: la configuración está completa solo al llegar al
+    // final de la rama (tratamiento).
     const ultimo = state.path[state.path.length - 1];
-    const hojaElegida = ultimo && (!ultimo.hijos || !ultimo.hijos.length);
-    const listo = state.armazon && (hojaElegida || (ultimo && ultimo.kind === 'material'));
+    const hojaElegida = ultimo && !tieneHijos(ultimo);
+    const listo = state.armazon && hojaElegida;
 
     if (waBtn) {
       if (listo) {
