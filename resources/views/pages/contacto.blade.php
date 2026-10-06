@@ -9,7 +9,7 @@
 <section class="jr-section-sm jr-bg-2">
     <div class="container">
         <p class="jr-eyebrow mb-2">Estamos para ayudarte</p>
-        <h1 class="mb-2" style="font-size:clamp(2rem,5vw,3.2rem)">Agenda tu cita</h1>
+        <h1 class="mb-2" style="font-size:clamp(2rem,5vw,3.2rem)">Contáctanos</h1>
         <p class="jr-text-muted mb-0" style="max-width:58ch">Déjanos tus datos y el motivo de tu visita. Te contactamos para confirmar tu examen de la vista o tu cotización.</p>
     </div>
 </section>

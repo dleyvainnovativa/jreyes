@@ -25,7 +25,7 @@ const MXN = new Intl.NumberFormat('es-MX', {
 
 // Etiqueta legible del paso según el "kind" del nodo.
 const KIND_LABEL = {
-  nivel: 'Nivel',
+  nivel: 'Calidad',
   diseno: 'Diseño',
   material: 'Material',
   linea: 'Línea',

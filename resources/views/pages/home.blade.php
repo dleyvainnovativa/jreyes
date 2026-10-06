@@ -20,7 +20,7 @@
                 </p>
                 <div class="d-flex flex-wrap gap-3">
                     <a href="{{ route('contacto') }}" class="btn btn-jr-primary btn-lg">
-                        <i class="fa-solid fa-glasses me-2"></i> Agenda tu cita
+                        <i class="fa-solid fa-glasses me-2"></i> Contáctanos
                     </a>
                 </div>
             </div>
@@ -173,7 +173,7 @@
             <h2 class="mb-3" style="font-size:clamp(1.7rem,3.5vw,2.4rem)">¿Listo para ver mejor?</h2>
             <p class="jr-text-muted mb-4 mx-auto" style="max-width:48ch">Agenda tu examen de la vista o cotiza tus lentes. Te asesoramos para elegir la mejor opción para ti.</p>
             <div class="d-flex flex-wrap gap-3 justify-content-center">
-                <a href="{{ route('contacto') }}" class="btn btn-jr-primary btn-lg">Agenda tu cita</a>
+                <a href="{{ route('contacto') }}" class="btn btn-jr-primary btn-lg">Contáctanos</a>
                 <a href="{{ route('lentes') }}" class="btn btn-jr-outline btn-lg">Arma tus lentes</a>
             </div>
         </div>
