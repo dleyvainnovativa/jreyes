@@ -3,64 +3,37 @@
 namespace Database\Seeders;
 
 use App\Models\CatalogNode;
-use App\Models\LensDesign;
-use App\Models\Treatment;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 /**
- * Construye el árbol de catálogo del configurador a partir del formato del
- * cliente (formato.xlsx: hojas MONOFOCAL, BIFOCALES, PROGRESIVAS).
+ * Construye el árbol de catálogo del configurador.
  *
  * PRECIOS
  * -------
- * "Reusar la tabla ya sembrada": los precios se toman de las tablas
- * existentes (treatments, lens_designs) cuando el nodo coincide con un
- * registro ya sembrado. Los nodos que no coinciden o que solo agrupan
- * (nivel, diseño) quedan en 0 y en el sitio se muestran como
- * "Precio en tienda". El total del configurador solo suma nodos con
- * precio > 0.
+ * Los precios viven EXPLÍCITOS en este seeder, por nodo. A diferencia de la
+ * versión anterior, ya NO se toman de las tablas treatments/lens_designs,
+ * porque el formato del cliente (CORRECION_DE_PRECIOS) define precios
+ * DISTINTOS para el mismo tratamiento según el nivel (p. ej. Fotocromático
+ * cuesta $650 en convencional pero $800 en intermedio). Una tabla plana de
+ * tratamientos con un solo precio no puede representar eso.
  *
- * Los precios sin coincidencia (materiales de tiers superiores, blend,
- * airwear, etc.) se centralizan aquí abajo en $sinCoincidencia para que el
- * cliente los pueda llenar en un solo lugar cuando entregue los números.
+ * Esto convierte a este archivo en la ÚNICA fuente de verdad de precios del
+ * configurador: para actualizar un precio, edítalo aquí y vuelve a sembrar.
+ *
+ * Estructura por tipo (profundidad variable; el configurador solo muestra
+ * los hijos del nodo elegido, así que la profundidad la maneja el árbol):
+ *   Monofocal : nivel -> material -> tratamiento
+ *   Bifocal   : nivel -> diseño (flat top|blend) -> tratamiento   (SOLO CR-39)
+ *   Progresiva convencional/intermedio: nivel -> material -> tratamiento
+ *   Progresiva alta gama: nivel -> material/línea -> [línea] -> tratamiento
+ *
+ * Nodos con precio 0 (agrupadores: nivel, diseño, material agrupador) no
+ * suman al total. El total suma solo las hojas/opciones con precio > 0.
  */
 class CatalogTreeSeeder extends Seeder
 {
-    /** Precios tomados de treatments, cacheados por slug de tratamiento xlsx. */
-    private array $tratamientoPrecios = [];
-
-    /** Precios tomados de lens_designs para materiales/marcas. */
-    private array $disenoPrecios = [];
-
-    /**
-     * Precios que el formato del cliente aún no tiene sembrados.
-     * Déjalos en 0 para mostrar "Precio en tienda", o pon el número cuando
-     * el cliente lo entregue. La clave es el slug del nodo.
-     */
-    private array $sinCoincidencia = [
-        // Monofocal: solo hay precio sembrado para el par cr-39/poli base.
-        'mono-intermedio-cr39'       => 0,
-        'mono-intermedio-poli'       => 0,
-        'mono-altagama-cr39'         => 0,
-        'mono-altagama-poli'         => 0,
-        // Bifocal: solo flat top cr-39 tiene precio sembrado.
-        'bi-conv-ftop-poli'          => 0,
-        'bi-conv-blend-cr39'         => 0,
-        'bi-conv-blend-poli'         => 0,
-        'bi-inter-ftop-cr39'         => 0,
-        'bi-inter-ftop-poli'         => 0,
-        'bi-inter-blend-cr39'        => 0,
-        'bi-inter-blend-poli'        => 0,
-        // Progresiva alta gama: la línea "easy fit" (Airwear) no tiene
-        // precio sembrado -> "Precio en tienda" hasta que el cliente lo dé.
-        'prog-altagama-airwear-easyfit' => 0,
-    ];
-
     public function run(): void
     {
-        $this->cachePrecios();
-
         CatalogNode::query()->delete();
 
         $this->seedMonofocal();
@@ -69,51 +42,17 @@ class CatalogTreeSeeder extends Seeder
     }
 
     /* ----------------------------------------------------------------------
-       Caché de precios de las tablas ya sembradas
+       Imágenes concretas por slug (reutiliza las que ya existen en public/img).
+       Amplía esta lista cuando el cliente entregue más imágenes.
        ---------------------------------------------------------------------- */
-    private function cachePrecios(): void
-    {
-        // Tratamientos por nombre normalizado -> precio.
-        foreach (Treatment::all() as $t) {
-            $this->tratamientoPrecios[$this->norm($t->nombre)] = (float) $t->precio;
-        }
-
-        // Diseños indexados por NOMBRE + material (el nombre distingue entre
-        // Varilux Comfort/Liberty/Physio, que comparten la marca "Varilux").
-        // Indexar por marca colisiona, así que priorizamos nombre.
-        foreach (LensDesign::all() as $d) {
-            $this->disenoPrecios[$this->norm($d->nombre . '|' . $d->material)] = (float) $d->precio;
-        }
-    }
-
-    /**
-     * Normaliza: minúsculas, sin acentos, quita símbolos y colapsa espacios
-     * DESPUÉS de quitarlos (para que "sapphire 360°" -> "sapphire 360",
-     * no "sapphire  360").
-     */
-    private function norm(string $s): string
-    {
-        return Str::of($s)->lower()->ascii()
-            ->replace(['+', '.', '°'], ' ')
-            ->squish()->toString();
-    }
-
-    /** Precio de un tratamiento xlsx por nombre; 0 si no hay coincidencia. */
-    private function precioTrat(string $nombre): float
-    {
-        return $this->tratamientoPrecios[$this->norm($nombre)] ?? 0.0;
-    }
-
-    /** Precio de un diseño por NOMBRE + material; 0 si no coincide. */
-    private function precioDiseno(string $nombre, string $material): float
-    {
-        return $this->disenoPrecios[$this->norm($nombre . '|' . $material)] ?? 0.0;
-    }
-
-    private function precioForzado(string $slug, float $fallback = 0.0): float
-    {
-        return $this->sinCoincidencia[$slug] ?? $fallback;
-    }
+    private array $overrideImg = [
+        'prog-altagama-cr39-liberty'    => 'img/varilux-liberty-360.jpg',
+        'prog-altagama-cr39-comfort'    => 'img/varilux-comfort.jpg',
+        'prog-altagama-cr39-physio'     => 'img/varilux-physio.jpg',
+        'prog-altagama-airwear-liberty' => 'img/varilux-liberty-360.jpg',
+        'prog-altagama-airwear-comfort' => 'img/varilux-comfort.jpg',
+        'prog-altagama-airwear-physio'  => 'img/varilux-physio.jpg',
+    ];
 
     /* ----------------------------------------------------------------------
        Helper de creación de nodos
@@ -128,297 +67,342 @@ class CatalogTreeSeeder extends Seeder
             'slug'        => $attrs['slug'],
             'precio'      => $attrs['precio'] ?? 0,
             'es_extra'    => $attrs['es_extra'] ?? false,
-            'imagen'      => $attrs['imagen'] ?? $this->imgSiExiste($attrs['slug']),
+            'imagen'      => $attrs['imagen'] ?? ($this->overrideImg[$attrs['slug']] ?? null),
             'descripcion' => $attrs['descripcion'] ?? null,
             'orden'       => $orden,
             'activo'      => true,
         ]);
     }
 
-    /** Convención de imagen por slug: public/img/catalog/<slug>.jpg (opcional). */
-    private function imgSiExiste(string $slug): ?string
+    /**
+     * Crea las hojas de tratamiento bajo un nodo padre.
+     * Cada item: ['Nombre', precio, es_extra?]
+     */
+    private function trat(CatalogNode $padre, string $tipo, string $prefijo, array $items): void
     {
-        // No comprobamos el disco aquí; la vista degrada con onerror.
-        // Devolvemos null para que el resumen omita miniaturas por defecto.
-        // El cliente puede fijar rutas concretas en $overrideImg.
-        return $this->overrideImg[$slug] ?? null;
+        foreach ($items as $idx => $item) {
+            $this->node([
+                'kind'     => 'tratamiento',
+                'nombre'   => $item[0],
+                'slug'     => $prefijo . '-t' . ($idx + 1),
+                'precio'   => $item[1],
+                'es_extra' => $item[2] ?? false,
+            ], $padre->id, $tipo, $idx + 1);
+        }
     }
 
-    /**
-     * Imágenes concretas por slug (reutiliza las que ya existen en public/img).
-     * Amplía esta lista cuando el cliente entregue más imágenes.
-     */
-    private array $overrideImg = [
-        // Materiales base
-        'mono-conv-cr39'      => 'img/varilux-comfort.jpg',
-        // Marcas Varilux (reutilizan imágenes ya sembradas)
-        'prog-altagama-liberty' => 'img/varilux-liberty-360.jpg',
-        'prog-altagama-comfort' => 'img/varilux-comfort.jpg',
-        'prog-altagama-physio'  => 'img/varilux-physio.jpg',
-        // Tratamientos con imagen ya sembrada
-        'saphir-mono-inter'   => 'img/saphir-retilens.jpg',
-    ];
-
     /* ======================================================================
-       MONOFOCAL  :  nivel -> material -> tratamiento
+       MONOFOCAL :  nivel -> material -> tratamiento
+       Material: CR-39 $150 / Policarbonato $250
        ====================================================================== */
     private function seedMonofocal(): void
     {
         $tipo = 'monofocal';
 
         // --- Convencional ---
-        $conv = $this->node(['kind' => 'nivel', 'nombre' => 'Convencional', 'slug' => 'mono-conv',
-            'descripcion' => 'Diseño estándar, la opción más accesible.'], null, $tipo, 1);
-
-        $convCr = $this->node(['kind' => 'material', 'nombre' => 'CR-39', 'slug' => 'mono-conv-cr39',
-            'precio' => $this->precioDiseno('Monofocal', 'CR-39'),
-            'descripcion' => 'Mica plástica estándar, ligera y económica.'], $conv->id, $tipo, 1);
-        $convPoli = $this->node(['kind' => 'material', 'nombre' => 'Policarbonato', 'slug' => 'mono-conv-poli',
-            'precio' => $this->precioDiseno('Monofocal', 'Policarbonato'),
-            'descripcion' => 'Más delgada y resistente a impactos.'], $conv->id, $tipo, 2);
-
-        foreach ([$convCr, $convPoli] as $i => $mat) {
-            $suf = $i === 0 ? 'cr39' : 'poli';
-            $this->trat($mat, $tipo, "mono-conv-$suf", [
-                ['Antirreflejante', 'antirreflejante'],
-                ['Fotocromático', 'fotocromatico', true],
-                ['Fotocromático + Antirreflejante', 'fotocromatico + antireflejante'],
-            ]);
-        }
+        $conv = $this->node([
+            'kind' => 'nivel',
+            'nombre' => 'Convencional',
+            'slug' => 'mono-conv',
+            'descripcion' => 'Diseño estándar, la opción más accesible.'
+        ], null, $tipo, 1);
+        $convTrats = [
+            ['Antirreflejante', 300],
+            ['Fotocromático', 650, true],
+            ['Antirreflejante + Fotocromático', 750],
+        ];
+        $this->materialesMono($conv, $tipo, 'mono-conv', 150, 250, $convTrats);
 
         // --- Intermedio ---
-        $inter = $this->node(['kind' => 'nivel', 'nombre' => 'Intermedio', 'slug' => 'mono-intermedio',
-            'descripcion' => 'Mejor calidad óptica y tratamientos de gama media.'], null, $tipo, 2);
-
-        $interCr = $this->node(['kind' => 'material', 'nombre' => 'CR-39', 'slug' => 'mono-intermedio-cr39',
-            'precio' => $this->precioForzado('mono-intermedio-cr39')], $inter->id, $tipo, 1);
-        $interPoli = $this->node(['kind' => 'material', 'nombre' => 'Policarbonato', 'slug' => 'mono-intermedio-poli',
-            'precio' => $this->precioForzado('mono-intermedio-poli')], $inter->id, $tipo, 2);
-
-        // CR-39: blueray, saphir, fotocromatico, fotocromatico saphir retilens
-        $this->trat($interCr, $tipo, 'mono-inter-cr39', [
-            ['Blueray', 'blueray'],
-            ['Saphir Retilens', 'saphir retilens'],
-            ['Fotocromático', 'fotocromatico', true],
-            ['Fotocromático Saphir Retilens', 'saphir retilens'],
-        ]);
-        // Policarbonato: blueray, fotocromatico
-        $this->trat($interPoli, $tipo, 'mono-inter-poli', [
-            ['Blueray', 'blueray'],
-            ['Fotocromático', 'fotocromatico', true],
-        ]);
+        $inter = $this->node([
+            'kind' => 'nivel',
+            'nombre' => 'Intermedio',
+            'slug' => 'mono-inter',
+            'descripcion' => 'Mejor calidad óptica y tratamientos de gama media.'
+        ], null, $tipo, 2);
+        $interTrats = [
+            ['Blueray', 500],
+            ['Saphir Retilens', 700],
+            ['Fotocromático', 800, true],
+            ['Fotocromático + Saphir Retilens', 1100],
+        ];
+        $this->materialesMono($inter, $tipo, 'mono-inter', 150, 250, $interTrats);
 
         // --- Alta gama ---
-        $alta = $this->node(['kind' => 'nivel', 'nombre' => 'Alta gama', 'slug' => 'mono-altagama',
-            'descripcion' => 'Tratamientos premium de la línea Crizal.'], null, $tipo, 3);
+        $alta = $this->node([
+            'kind' => 'nivel',
+            'nombre' => 'Alta gama',
+            'slug' => 'mono-alta',
+            'descripcion' => 'Tratamientos premium de la línea Crizal.'
+        ], null, $tipo, 3);
+        $altaTrats = [
+            ['Crizal Easy', 1400],
+            ['Crizal Rock', 1600],
+            ['Crizal Sapphire', 1950],
+            ['Crizal Prevencia', 1950],
+            ['+ Transition', 1100, true],
+        ];
+        $this->materialesMono($alta, $tipo, 'mono-alta', 150, 250, $altaTrats);
+    }
 
-        $altaCr = $this->node(['kind' => 'material', 'nombre' => 'CR-39', 'slug' => 'mono-altagama-cr39',
-            'precio' => $this->precioForzado('mono-altagama-cr39')], $alta->id, $tipo, 1);
-        $altaPoli = $this->node(['kind' => 'material', 'nombre' => 'Policarbonato', 'slug' => 'mono-altagama-poli',
-            'precio' => $this->precioForzado('mono-altagama-poli')], $alta->id, $tipo, 2);
+    /** Crea CR-39 y Policarbonato bajo un nivel monofocal, con sus tratamientos. */
+    private function materialesMono(CatalogNode $nivel, string $tipo, string $prefijo, int $precioCr, int $precioPoli, array $trats): void
+    {
+        $cr = $this->node(
+            [
+                'kind' => 'material',
+                'nombre' => 'CR-39',
+                'slug' => "$prefijo-cr39",
+                'precio' => $precioCr,
+                'descripcion' => 'Mica plástica estándar, ligera y económica.'
+            ],
+            $nivel->id,
+            $tipo,
+            1
+        );
+        $this->trat($cr, $tipo, "$prefijo-cr39", $trats);
 
-        foreach ([$altaCr, $altaPoli] as $i => $mat) {
-            $suf = $i === 0 ? 'cr39' : 'poli';
-            $this->trat($mat, $tipo, "mono-alta-$suf", [
-                ['Crizal Easy', 'crizal easy'],
-                ['Crizal Rock', 'crizal rock'],
-                ['Crizal Sapphire 360°', 'Crizal Sapphire 360°'],
-                ['Crizal Prevencia', 'crizal prevencia'],
-                ['+ Transitions', 'transitions', true],
-            ]);
-        }
+        $poli = $this->node(
+            [
+                'kind' => 'material',
+                'nombre' => 'Policarbonato',
+                'slug' => "$prefijo-poli",
+                'precio' => $precioPoli,
+                'descripcion' => 'Más delgada y resistente a impactos.'
+            ],
+            $nivel->id,
+            $tipo,
+            2
+        );
+        $this->trat($poli, $tipo, "$prefijo-poli", $trats);
     }
 
     /* ======================================================================
-       BIFOCAL  :  nivel -> diseno(flat top|blend) -> material -> tratamiento
+       BIFOCAL :  nivel -> diseño (flat top|blend) -> tratamiento
+       SOLO material CR-39 (el formato del cliente anula Policarbonato).
+       Diseño: Flat Top $250 / Blend $550
        ====================================================================== */
     private function seedBifocal(): void
     {
         $tipo = 'bifocal';
 
         // --- Convencional ---
-        $conv = $this->node(['kind' => 'nivel', 'nombre' => 'Convencional', 'slug' => 'bi-conv',
-            'descripcion' => 'Bifocal clásico con segmento de lectura.'], null, $tipo, 1);
-        $this->bifocalDisenos($conv, $tipo, 'conv', [
-            ['Antirreflejante', 'antirreflejante'],
-            ['+ Fotocromático', 'fotocromatico', true],
-        ]);
+        $conv = $this->node([
+            'kind' => 'nivel',
+            'nombre' => 'Convencional',
+            'slug' => 'bi-conv',
+            'descripcion' => 'Bifocal clásico con segmento de lectura. Solo en CR-39.'
+        ], null, $tipo, 1);
+        $convTrats = [
+            ['+ Antirreflejante', 300],
+            ['+ Fotocromático', 650, true],
+            ['Antirreflejante + Fotocromático', 750],
+        ];
+        $this->disenosBifocal($conv, $tipo, 'bi-conv', $convTrats);
 
         // --- Intermedio ---
-        $inter = $this->node(['kind' => 'nivel', 'nombre' => 'Intermedio', 'slug' => 'bi-inter',
-            'descripcion' => 'Bifocal con tratamientos de gama media.'], null, $tipo, 2);
-        $this->bifocalDisenos($inter, $tipo, 'inter', [
-            ['Blueray', 'blueray'],
-            ['+ Fotocromático', 'fotocromatico', true],
-        ]);
+        $inter = $this->node([
+            'kind' => 'nivel',
+            'nombre' => 'Intermedio',
+            'slug' => 'bi-inter',
+            'descripcion' => 'Bifocal con tratamientos de gama media. Solo en CR-39.'
+        ], null, $tipo, 2);
+        $interTrats = [
+            ['+ Antirreflejante', 450],
+            ['+ Fotocromático', 750, true],
+            ['Antirreflejante + Fotocromático', 750],
+        ];
+        $this->disenosBifocal($inter, $tipo, 'bi-inter', $interTrats);
     }
 
-    /** Crea la sub-rama diseño(flat top|blend) -> material -> tratamientos. */
-    private function bifocalDisenos(CatalogNode $nivel, string $tipo, string $nivelSlug, array $trats): void
+    /** Crea Flat Top y Blend bajo un nivel bifocal (sin paso de material). */
+    private function disenosBifocal(CatalogNode $nivel, string $tipo, string $prefijo, array $trats): void
     {
-        $disenos = [
-            ['Flat Top', 'ftop'],
-            ['Blend', 'blend'],
-        ];
-        foreach ($disenos as $di => [$dNombre, $dSlug]) {
-            $diseno = $this->node(['kind' => 'diseno', 'nombre' => $dNombre,
-                'slug' => "bi-$nivelSlug-$dSlug",
-                'descripcion' => $dSlug === 'ftop'
-                    ? 'Segmento de lectura visible en forma de "D".'
-                    : 'Transición mezclada, línea menos marcada.'],
-                $nivel->id, $tipo, $di + 1);
+        $ftop = $this->node(
+            [
+                'kind' => 'diseno',
+                'nombre' => 'Flat Top',
+                'slug' => "$prefijo-ftop",
+                'precio' => 250,
+                'descripcion' => 'Segmento de lectura visible en forma de "D".'
+            ],
+            $nivel->id,
+            $tipo,
+            1
+        );
+        $this->trat($ftop, $tipo, "$prefijo-ftop", $trats);
 
-            $materiales = [
-                ['CR-39', 'cr39'],
-                ['Policarbonato', 'poli'],
-            ];
-            foreach ($materiales as $mi => [$mNombre, $mSlug]) {
-                $slug = "bi-$nivelSlug-$dSlug-$mSlug";
-                // Único precio sembrado: flat top cr-39 convencional.
-                $precio = ($nivelSlug === 'conv' && $dSlug === 'ftop' && $mSlug === 'cr39')
-                    ? $this->precioDiseno('Flat Top', 'CR-39')
-                    : $this->precioForzado($slug);
-
-                $mat = $this->node(['kind' => 'material', 'nombre' => $mNombre, 'slug' => $slug,
-                    'precio' => $precio], $diseno->id, $tipo, $mi + 1);
-
-                $this->trat($mat, $tipo, $slug, $trats);
-            }
-        }
+        $blend = $this->node(
+            [
+                'kind' => 'diseno',
+                'nombre' => 'Blend',
+                'slug' => "$prefijo-blend",
+                'precio' => 550,
+                'descripcion' => 'Transición mezclada, línea menos marcada.'
+            ],
+            $nivel->id,
+            $tipo,
+            2
+        );
+        $this->trat($blend, $tipo, "$prefijo-blend", $trats);
     }
 
     /* ======================================================================
-       PROGRESIVA :  nivel -> material/marca -> tratamiento
+       PROGRESIVA
+         convencional/intermedio: nivel -> material -> tratamiento
+         alta gama              : nivel -> material/línea -> [línea] -> tratamiento
        ====================================================================== */
     private function seedProgresiva(): void
     {
         $tipo = 'progresiva';
 
         // --- Convencional ---
-        $conv = $this->node(['kind' => 'nivel', 'nombre' => 'Convencional', 'slug' => 'prog-conv',
-            'descripcion' => 'Progresiva de diseño estándar, sin líneas.'], null, $tipo, 1);
-        $convCr = $this->node(['kind' => 'material', 'nombre' => 'CR-39', 'slug' => 'prog-conv-cr39',
-            'precio' => $this->precioDiseno('Convencional', 'CR-39')], $conv->id, $tipo, 1);
-        $convPoli = $this->node(['kind' => 'material', 'nombre' => 'Policarbonato', 'slug' => 'prog-conv-poli',
-            'precio' => $this->precioDiseno('Convencional', 'Policarbonato')], $conv->id, $tipo, 2);
-        foreach ([$convCr, $convPoli] as $i => $mat) {
-            $this->trat($mat, $tipo, 'prog-conv-' . ($i === 0 ? 'cr39' : 'poli'), [
-                ['Antirreflejante', 'antirreflejante'],
-                ['+ Fotocromático', 'fotocromatico', true],
-            ]);
-        }
+        $conv = $this->node([
+            'kind' => 'nivel',
+            'nombre' => 'Convencional',
+            'slug' => 'prog-conv',
+            'descripcion' => 'Progresiva de diseño estándar, sin líneas.'
+        ], null, $tipo, 1);
+        $convTrats = [
+            ['+ Antirreflejante', 300],
+            ['+ Fotocromático', 650, true],
+            ['Antirreflejante + Fotocromático', 750],
+        ];
+        $this->materialesProg($conv, $tipo, 'prog-conv', 900, 1250, $convTrats);
 
         // --- Intermedio ---
-        $inter = $this->node(['kind' => 'nivel', 'nombre' => 'Intermedio', 'slug' => 'prog-inter',
-            'descripcion' => 'Progresiva con tratamientos de gama media.'], null, $tipo, 2);
-        $interCr = $this->node(['kind' => 'material', 'nombre' => 'CR-39', 'slug' => 'prog-inter-cr39',
-            'precio' => $this->precioForzado('prog-inter-cr39', $this->precioDiseno('Convencional', 'CR-39'))],
-            $inter->id, $tipo, 1);
-        $interPoli = $this->node(['kind' => 'material', 'nombre' => 'Policarbonato', 'slug' => 'prog-inter-poli',
-            'precio' => $this->precioForzado('prog-inter-poli', $this->precioDiseno('Convencional', 'Policarbonato'))],
-            $inter->id, $tipo, 2);
-        foreach ([$interCr, $interPoli] as $i => $mat) {
-            $this->trat($mat, $tipo, 'prog-inter-' . ($i === 0 ? 'cr39' : 'poli'), [
-                ['Blueray', 'blueray'],
-                ['+ Fotocromático', 'fotocromatico', true],
-            ]);
-        }
+        $inter = $this->node([
+            'kind' => 'nivel',
+            'nombre' => 'Intermedio',
+            'slug' => 'prog-inter',
+            'descripcion' => 'Progresiva con tratamientos de gama media.'
+        ], null, $tipo, 2);
+        $interTrats = [
+            ['+ Blueray', 450],
+            ['+ Fotocromático', 650, true],
+            ['Blueray + Fotocromático', 750],
+        ];
+        $this->materialesProg($inter, $tipo, 'prog-inter', 950, 1050, $interTrats);
 
         // --- Alta gama ---
-        // ÚNICO nivel con paso extra "Línea":
-        //   material (CR-39 | Airwear) -> línea (Varilux… | easy fit) -> tratamiento
-        //
-        // El precio del diseño va en la LÍNEA (Varilux Liberty/Comfort/Physio
-        // tienen precios distintos), no en el material. El material queda como
-        // nodo agrupador (precio 0).
-        //
-        // Los tratamientos dependen de la línea:
-        //   - Líneas Varilux -> familia Crizal (+transition)
-        //   - easy fit        -> retilens / retilens + fotocromático
-        $alta = $this->node(['kind' => 'nivel', 'nombre' => 'Alta gama', 'slug' => 'prog-altagama',
-            'descripcion' => 'Diseños premium Varilux con tratamientos Crizal.'], null, $tipo, 3);
+        // La línea Varilux se queda IGUAL en CR-39 y Airwear (precios sin cambio).
+        // Easy Fit es su PROPIA línea (NO va bajo Airwear) con sus propios
+        // tratamientos y precio.
+        $alta = $this->node([
+            'kind' => 'nivel',
+            'nombre' => 'Alta gama',
+            'slug' => 'prog-alta',
+            'descripcion' => 'Diseños premium Varilux y Easy Fit.'
+        ], null, $tipo, 3);
 
-        // Tratamientos de las líneas Varilux (Crizal).
+        // Tratamientos de las líneas Varilux (Crizal) — precios de alta gama.
         $tratsVarilux = [
-            ['Crizal Easy', 'crizal easy'],
-            ['Crizal Rock', 'crizal rock'],
-            ['Crizal Sapphire 360°', 'Crizal Sapphire 360°'],
-            ['Crizal Prevencia', 'crizal prevencia'],
-            ['+ Transitions', 'transitions', true],
-        ];
-        // Tratamientos exclusivos de "easy fit".
-        $tratsEasyFit = [
-            ['Retilens + Fotocromático', 'saphir retilens'],
-            ['Retilens', 'saphir retilens'],
+            ['Crizal Easy', 1400],
+            ['Crizal Rock', 1600],
+            ['Crizal Sapphire', 1950],
+            ['Crizal Prevencia', 1950],
+            ['+ Transition', 1100, true],
         ];
 
-        // Líneas Varilux con su precio por material (CR-39 vs Policarbonato).
-        // Airwear es a base de policarbonato, así que sus líneas Varilux
-        // usan el precio de Policarbonato.
+        // Líneas Varilux (precio del diseño, sin cambio respecto al catálogo).
         $lineasVarilux = [
-            ['Varilux Liberty 360°', 'liberty'],
-            ['Varilux Comfort',      'comfort'],
-            ['Varilux Physio 3.0',   'physio'],
+            ['Varilux Liberty 360°', 'liberty', 2650, 3250],
+            ['Varilux Comfort',      'comfort', 2350, 2950],
+            ['Varilux Physio 3.0',   'physio',  2950, 3650],
         ];
 
         // Material 1: CR-39 (agrupador) -> líneas Varilux (precio CR-39).
-        $matCr = $this->node(['kind' => 'material', 'nombre' => 'CR-39', 'slug' => 'prog-altagama-cr39',
-            'descripcion' => 'Mica estándar para diseños progresivos premium.'],
-            $alta->id, $tipo, 1);
-        foreach ($lineasVarilux as $li => [$lNombre, $lKey]) {
-            $linea = $this->node([
-                'kind' => 'linea', 'nombre' => $lNombre,
-                'slug' => "prog-altagama-cr39-$lKey",
-                'precio' => $this->precioDiseno($lNombre, 'CR-39'),
-            ], $matCr->id, $tipo, $li + 1);
+        $matCr = $this->node(
+            [
+                'kind' => 'material',
+                'nombre' => 'CR-39',
+                'slug' => 'prog-altagama-cr39',
+                'descripcion' => 'Mica estándar para diseños progresivos premium.'
+            ],
+            $alta->id,
+            $tipo,
+            1
+        );
+        foreach ($lineasVarilux as $li => [$lNombre, $lKey, $pCr, $pPoli]) {
+            $linea = $this->node(
+                [
+                    'kind' => 'linea',
+                    'nombre' => $lNombre,
+                    'slug' => "prog-altagama-cr39-$lKey",
+                    'precio' => $pCr
+                ],
+                $matCr->id,
+                $tipo,
+                $li + 1
+            );
             $this->trat($linea, $tipo, "prog-altagama-cr39-$lKey", $tratsVarilux);
         }
 
-        // Material 2: Airwear (agrupador) -> líneas Varilux (precio Poli) + easy fit.
-        $matAir = $this->node(['kind' => 'material', 'nombre' => 'Airwear', 'slug' => 'prog-altagama-airwear',
-            'descripcion' => 'Material de policarbonato, más ligero y resistente.'],
-            $alta->id, $tipo, 2);
-        foreach ($lineasVarilux as $li => [$lNombre, $lKey]) {
-            $linea = $this->node([
-                'kind' => 'linea', 'nombre' => $lNombre,
-                'slug' => "prog-altagama-airwear-$lKey",
-                'precio' => $this->precioDiseno($lNombre, 'Policarbonato'),
-            ], $matAir->id, $tipo, $li + 1);
+        // Material 2: Airwear (agrupador) -> líneas Varilux (precio Policarbonato).
+        $matAir = $this->node(
+            [
+                'kind' => 'material',
+                'nombre' => 'Airwear',
+                'slug' => 'prog-altagama-airwear',
+                'descripcion' => 'Material de policarbonato, más ligero y resistente.'
+            ],
+            $alta->id,
+            $tipo,
+            2
+        );
+        foreach ($lineasVarilux as $li => [$lNombre, $lKey, $pCr, $pPoli]) {
+            $linea = $this->node(
+                [
+                    'kind' => 'linea',
+                    'nombre' => $lNombre,
+                    'slug' => "prog-altagama-airwear-$lKey",
+                    'precio' => $pPoli
+                ],
+                $matAir->id,
+                $tipo,
+                $li + 1
+            );
             $this->trat($linea, $tipo, "prog-altagama-airwear-$lKey", $tratsVarilux);
         }
-        // easy fit: línea propia con sus tratamientos (retilens).
-        $easyFit = $this->node([
-            'kind' => 'linea', 'nombre' => 'Easy Fit',
-            'slug' => 'prog-altagama-airwear-easyfit',
-            'precio' => $this->precioForzado('prog-altagama-airwear-easyfit'),
-            'descripcion' => 'Diseño de adaptación sencilla.',
-        ], $matAir->id, $tipo, count($lineasVarilux) + 1);
-        $this->trat($easyFit, $tipo, 'prog-altagama-airwear-easyfit', $tratsEasyFit);
+
+        // Línea 3: Easy Fit — su propia rama (NO bajo Airwear), precio $1,450,
+        // con tratamientos exclusivos. No tiene opción Airwear.
+        $easyFit = $this->node(
+            [
+                'kind' => 'linea',
+                'nombre' => 'Easy Fit',
+                'slug' => 'prog-altagama-easyfit',
+                'precio' => 1450,
+                'descripcion' => 'Diseño de adaptación sencilla. Solo en esta línea.'
+            ],
+            $alta->id,
+            $tipo,
+            3
+        );
+        $this->trat($easyFit, $tipo, 'prog-altagama-easyfit', [
+            ['+ Antirreflejante', 300],
+            ['+ Antirreflejante + Fotocromático', 650],
+            ['Retilens', 1050],
+        ]);
     }
 
-    /* ----------------------------------------------------------------------
-       Crea los tratamientos (hojas) bajo un material.
-       Cada item: [Nombre visible, nombre-para-precio, es_extra?]
-       ---------------------------------------------------------------------- */
-    private function trat(CatalogNode $material, string $tipo, string $prefijo, array $items): void
+    /** Crea CR-39 y Policarbonato bajo un nivel progresivo, con sus tratamientos. */
+    private function materialesProg(CatalogNode $nivel, string $tipo, string $prefijo, int $precioCr, int $precioPoli, array $trats): void
     {
-        foreach ($items as $idx => $item) {
-            [$nombre, $matchNombre] = [$item[0], $item[1]];
-            $esExtra = $item[2] ?? false;
+        $cr = $this->node([
+            'kind' => 'material',
+            'nombre' => 'CR-39',
+            'slug' => "$prefijo-cr39",
+            'precio' => $precioCr
+        ], $nivel->id, $tipo, 1);
+        $this->trat($cr, $tipo, "$prefijo-cr39", $trats);
 
-            $precio = $this->precioTrat($matchNombre);
-            // "fotocromatico + antireflejante" = suma de ambos precios.
-            if ($this->norm($matchNombre) === $this->norm('fotocromatico + antireflejante')) {
-                $precio = $this->precioTrat('Fotocromático') + $this->precioTrat('Antirreflejante');
-            }
-
-            $this->node([
-                'kind'     => 'tratamiento',
-                'nombre'   => $nombre,
-                'slug'     => $prefijo . '-t' . ($idx + 1),
-                'precio'   => $precio,
-                'es_extra' => $esExtra,
-            ], $material->id, $tipo, $idx + 1);
-        }
+        $poli = $this->node([
+            'kind' => 'material',
+            'nombre' => 'Policarbonato',
+            'slug' => "$prefijo-poli",
+            'precio' => $precioPoli
+        ], $nivel->id, $tipo, 2);
+        $this->trat($poli, $tipo, "$prefijo-poli", $trats);
     }
 }
