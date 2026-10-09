@@ -27,12 +27,12 @@
 
             {{-- Hero (mismo mensaje que la portada) --}}
             <h1 class="jr-share__title">
-                <em>Personaliza</em>,<br>tus lentes en un solo click
+                <em>Personaliza</em><br>tus lentes en un solo click
             </h1>
-            <p class="jr-share__lead">
+            <!-- <p class="jr-share__lead">
                 Lentes graduados a la medida: monofocales, bifocales, progresivos y lentes de contacto.
                 Arma tus lentes y conoce el precio al instante.
-            </p>
+            </p> -->
 
             {{-- Código QR --}}
             <div class="jr-share__qr-wrap">
