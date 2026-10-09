@@ -1059,7 +1059,7 @@ button:focus-visible,
 }
 
 .jr-share__logo {
-  height: 64px;
+  height: 140px;
   width: auto;
   margin-bottom: 1.25rem;
 }
@@ -1084,8 +1084,8 @@ button:focus-visible,
 /* QR */
 .jr-share__qr-wrap { margin-bottom: 1.4rem; }
 .jr-share__qr {
-  width: clamp(180px, 56vw, 230px);
-  height: clamp(180px, 56vw, 230px);
+  width: clamp(180px, 56vw, 180px);
+  height: clamp(180px, 56vw, 180px);
   margin: 0 auto;
   background: #fff;
   border-radius: var(--jr-radius);
@@ -1144,7 +1144,7 @@ button:focus-visible,
 
 /* Pantallas muy bajas: compacta para que todo quepa sin scroll */
 @media (max-height: 680px) {
-  .jr-share__logo { height: 48px; margin-bottom: .75rem; }
+  .jr-share__logo { height: 140px; margin-bottom: .75rem; }
   .jr-share__lead { margin-bottom: 1rem; }
   .jr-share__qr { width: clamp(150px, 42vw, 190px); height: clamp(150px, 42vw, 190px); }
   .jr-share__cta { margin-bottom: 1rem; }
