@@ -296,6 +296,113 @@ export function initConfigurator() {
   }
 
   /* ---------------------------------------------------------------------- */
+  /* ---------------------------------------------------------------------- */
+  /* Graduación (opcional) — tabla en escritorio, tarjetas en móvil.        */
+  /* Ambas vistas comparten las mismas claves de campo; se mantienen en     */
+  /* sincronía y se guardan en localStorage. No afecta el precio.           */
+  /* ---------------------------------------------------------------------- */
+  const GRAD_KEY = 'jr_graduacion';
+  const GRAD_FIELDS = [
+    'od-esfera', 'od-cilindro', 'od-eje', 'od-add',
+    'oi-esfera', 'oi-cilindro', 'oi-eje', 'oi-add',
+    'dip',
+  ];
+
+  function initGraduacion() {
+    const grad = document.getElementById('jr-grad');
+    if (!grad) return;
+
+    // Todos los inputs de una clave (puede haber 2: tabla + tarjeta móvil).
+    const inputsFor = (key) =>
+      grad.querySelectorAll(`[data-grad="${key}"], [data-grad-m="${key}"]`);
+
+    // Guardar en localStorage (tolerante a modo privado / bloqueos).
+    function save() {
+      try {
+        const obj = {};
+        GRAD_FIELDS.forEach((k) => {
+          const el = grad.querySelector(`[data-grad="${k}"], [data-grad-m="${k}"]`);
+          obj[k] = el ? el.value.trim() : '';
+        });
+        localStorage.setItem(GRAD_KEY, JSON.stringify(obj));
+      } catch (e) { /* sin persistencia, no pasa nada */ }
+    }
+
+    // Restaurar valores guardados.
+    function restore() {
+      let obj = {};
+      try { obj = JSON.parse(localStorage.getItem(GRAD_KEY) || '{}') || {}; }
+      catch (e) { obj = {}; }
+      GRAD_FIELDS.forEach((k) => {
+        if (obj[k] != null && obj[k] !== '') {
+          inputsFor(k).forEach((el) => { el.value = obj[k]; });
+        }
+      });
+    }
+
+    // Sincroniza las dos vistas y guarda al escribir.
+    GRAD_FIELDS.forEach((k) => {
+      inputsFor(k).forEach((el) => {
+        el.addEventListener('input', () => {
+          inputsFor(k).forEach((otro) => { if (otro !== el) otro.value = el.value; });
+          save();
+          // Actualiza el enlace de WhatsApp si ya está activo.
+          recalc();
+        });
+      });
+    });
+
+    // Botón borrar.
+    const clearBtn = grad.querySelector('[data-grad-clear]');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        GRAD_FIELDS.forEach((k) => inputsFor(k).forEach((el) => { el.value = ''; }));
+        try { localStorage.removeItem(GRAD_KEY); } catch (e) {}
+        recalc();
+      });
+    }
+
+    restore();
+  }
+
+  // Lee la graduación actual del DOM como objeto { clave: valor }.
+  function leerGraduacion() {
+    const grad = document.getElementById('jr-grad');
+    const out = {};
+    if (!grad) return out;
+    GRAD_FIELDS.forEach((k) => {
+      const el = grad.querySelector(`[data-grad="${k}"], [data-grad-m="${k}"]`);
+      out[k] = el ? el.value.trim() : '';
+    });
+    return out;
+  }
+
+  // Construye las líneas de graduación para el mensaje de WhatsApp.
+  // Devuelve [] si no se capturó nada, para no ensuciar el mensaje.
+  function graduacionLineas() {
+    const g = leerGraduacion();
+    const tieneAlgo = GRAD_FIELDS.some((k) => g[k] !== '');
+    if (!tieneAlgo) return [];
+
+    const ojo = (p, etiqueta) => {
+      const partes = [];
+      if (g[`${p}-esfera`]) partes.push(`Esf ${g[`${p}-esfera`]}`);
+      if (g[`${p}-cilindro`]) partes.push(`Cil ${g[`${p}-cilindro`]}`);
+      if (g[`${p}-eje`]) partes.push(`Eje ${g[`${p}-eje`]}`);
+      if (g[`${p}-add`]) partes.push(`ADD ${g[`${p}-add`]}`);
+      return partes.length ? `• ${etiqueta}: ${partes.join(', ')}` : null;
+    };
+
+    const l = ['', 'Graduación:'];
+    const od = ojo('od', 'OD (der.)');
+    const oi = ojo('oi', 'OI (izq.)');
+    if (od) l.push(od);
+    if (oi) l.push(oi);
+    if (g.dip) l.push(`• DIP: ${g.dip} mm`);
+    return l;
+  }
+
+  /* ---------------------------------------------------------------------- */
   /* WhatsApp                                                               */
   /* ---------------------------------------------------------------------- */
   function buildWhatsAppUrl(total) {
@@ -310,6 +417,10 @@ export function initConfigurator() {
       l.push(`• ${etiqueta}: ${nodo.nombre}${precio}`);
     });
     l.push(`Total estimado (micas): ${MXN.format(total)}`);
+
+    // Graduación (si el cliente la capturó).
+    graduacionLineas().forEach((linea) => l.push(linea));
+
     const texto = encodeURIComponent(l.join('\n'));
     return numero ? `https://wa.me/${numero}?text=${texto}` : `https://wa.me/?text=${texto}`;
   }
@@ -363,5 +474,6 @@ export function initConfigurator() {
 
   // Arranque
   initTreeSteps();
+  initGraduacion();
   recalc();
 }

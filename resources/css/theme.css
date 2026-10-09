@@ -904,3 +904,114 @@ button:focus-visible,
   max-width: 100%;
 }
 .jr-summary-thumb:only-of-type img { aspect-ratio: 16 / 9; }
+
+/* --------------------------------------------------------------------------
+   Graduación (formulario opcional dentro del resumen)
+   -------------------------------------------------------------------------- */
+.jr-grad {
+  border-top: 1px solid var(--jr-line);
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+.jr-grad__head { margin-bottom: .9rem; }
+
+.jr-grad-input,
+.jr-grad-field input {
+  width: 100%;
+  background: var(--jr-surface-2);
+  border: 1px solid var(--jr-line);
+  border-radius: 7px;
+  color: var(--jr-text);
+  padding: .5rem .55rem;
+  font-size: .95rem;
+  text-align: center;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.jr-grad-input::placeholder,
+.jr-grad-field input::placeholder { color: var(--jr-text-dim); }
+.jr-grad-input:focus,
+.jr-grad-field input:focus {
+  outline: none;
+  border-color: var(--jr-gold-600);
+  box-shadow: 0 0 0 3px rgba(251, 203, 102, .15);
+}
+
+/* --- Vista TABLA (escritorio) --- */
+.jr-grad-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: .4rem;
+}
+.jr-grad-table th[scope="col"] {
+  font-family: var(--jr-font-body);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--jr-text-muted);
+  text-align: center;
+  padding-bottom: .2rem;
+}
+.jr-grad-table__eye {
+  font-weight: 700;
+  color: var(--jr-text);
+  white-space: nowrap;
+  text-align: left;
+  padding-right: .4rem;
+}
+.jr-grad-table td { padding: 0; }
+
+/* --- Vista TARJETAS (móvil) --- */
+.jr-grad__cards { display: none; }
+.jr-grad-eye + .jr-grad-eye { margin-top: .75rem; }
+.jr-grad-eye__title {
+  font-weight: 700;
+  margin: 0 0 .5rem;
+  color: var(--jr-text);
+}
+.jr-grad-eye__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+}
+.jr-grad-field {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+.jr-grad-field > span {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--jr-text-muted);
+}
+
+/* --- DIP --- */
+.jr-grad__dip { margin-top: .85rem; }
+.jr-grad-field--inline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+.jr-grad-field--inline > span { font-size: .85rem; color: var(--jr-text); }
+.jr-grad-field--inline input { max-width: 120px; }
+
+/* --- Botón borrar --- */
+.jr-grad__clear {
+  margin-top: .9rem;
+  background: transparent;
+  border: 1px solid var(--jr-line);
+  color: var(--jr-text-muted);
+  border-radius: var(--jr-radius-pill);
+  padding: .35rem .85rem;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease;
+}
+.jr-grad__clear:hover { border-color: var(--jr-red); color: var(--jr-text); }
+
+/* Intercambio tabla <-> tarjetas en móvil */
+@media (max-width: 575.98px) {
+  .jr-grad__table-wrap { display: none; }
+  .jr-grad__cards { display: block; }
+}

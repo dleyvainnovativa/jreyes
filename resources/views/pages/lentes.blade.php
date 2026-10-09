@@ -80,6 +80,79 @@
                             <div data-summary-list class="d-flex flex-column gap-3"></div>
                         </div>
                     </div>
+
+                    {{-- ============ GRADUACIÓN (opcional) ============ --}}
+                    <div class="jr-grad" id="jr-grad">
+                        <div class="jr-grad__head">
+                            <h3 class="jr-card__title mb-1">Tu graduación <span class="jr-text-muted fw-normal small">(opcional)</span></h3>
+                            <p class="jr-text-muted small mb-0">Si tienes tu receta a la mano, captúrala y la enviamos junto con tu pedido. Déjala en blanco si no la tienes.</p>
+                        </div>
+
+                        {{-- Vista TABLA (escritorio) --}}
+                        <div class="jr-grad__table-wrap" aria-hidden="false">
+                            <table class="jr-grad-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col"><span class="visually-hidden">Ojo</span></th>
+                                        <th scope="col">Esfera</th>
+                                        <th scope="col">Cilindro</th>
+                                        <th scope="col">Eje</th>
+                                        <th scope="col">ADD</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row" class="jr-grad-table__eye">OD <span class="jr-text-muted fw-normal">der.</span></th>
+                                        <td><input type="text" inputmode="decimal" data-grad="od-esfera" class="jr-grad-input" aria-label="Esfera ojo derecho" placeholder="0.00"></td>
+                                        <td><input type="text" inputmode="decimal" data-grad="od-cilindro" class="jr-grad-input" aria-label="Cilindro ojo derecho" placeholder="0.00"></td>
+                                        <td><input type="text" inputmode="numeric" data-grad="od-eje" class="jr-grad-input" aria-label="Eje ojo derecho" placeholder="0–180"></td>
+                                        <td><input type="text" inputmode="decimal" data-grad="od-add" class="jr-grad-input" aria-label="ADD ojo derecho" placeholder="0.00"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row" class="jr-grad-table__eye">OI <span class="jr-text-muted fw-normal">izq.</span></th>
+                                        <td><input type="text" inputmode="decimal" data-grad="oi-esfera" class="jr-grad-input" aria-label="Esfera ojo izquierdo" placeholder="0.00"></td>
+                                        <td><input type="text" inputmode="decimal" data-grad="oi-cilindro" class="jr-grad-input" aria-label="Cilindro ojo izquierdo" placeholder="0.00"></td>
+                                        <td><input type="text" inputmode="numeric" data-grad="oi-eje" class="jr-grad-input" aria-label="Eje ojo izquierdo" placeholder="0–180"></td>
+                                        <td><input type="text" inputmode="decimal" data-grad="oi-add" class="jr-grad-input" aria-label="ADD ojo izquierdo" placeholder="0.00"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {{-- Vista TARJETAS (móvil) --}}
+                        <div class="jr-grad__cards">
+                            <div class="jr-grad-eye">
+                                <p class="jr-grad-eye__title">Ojo derecho <span class="jr-text-muted fw-normal">(OD)</span></p>
+                                <div class="jr-grad-eye__fields">
+                                    <label class="jr-grad-field"><span>Esfera</span><input type="text" inputmode="decimal" data-grad-m="od-esfera" placeholder="0.00"></label>
+                                    <label class="jr-grad-field"><span>Cilindro</span><input type="text" inputmode="decimal" data-grad-m="od-cilindro" placeholder="0.00"></label>
+                                    <label class="jr-grad-field"><span>Eje</span><input type="text" inputmode="numeric" data-grad-m="od-eje" placeholder="0–180"></label>
+                                    <label class="jr-grad-field"><span>ADD</span><input type="text" inputmode="decimal" data-grad-m="od-add" placeholder="0.00"></label>
+                                </div>
+                            </div>
+                            <div class="jr-grad-eye">
+                                <p class="jr-grad-eye__title">Ojo izquierdo <span class="jr-text-muted fw-normal">(OI)</span></p>
+                                <div class="jr-grad-eye__fields">
+                                    <label class="jr-grad-field"><span>Esfera</span><input type="text" inputmode="decimal" data-grad-m="oi-esfera" placeholder="0.00"></label>
+                                    <label class="jr-grad-field"><span>Cilindro</span><input type="text" inputmode="decimal" data-grad-m="oi-cilindro" placeholder="0.00"></label>
+                                    <label class="jr-grad-field"><span>Eje</span><input type="text" inputmode="numeric" data-grad-m="oi-eje" placeholder="0–180"></label>
+                                    <label class="jr-grad-field"><span>ADD</span><input type="text" inputmode="decimal" data-grad-m="oi-add" placeholder="0.00"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- DIP (una sola medida) --}}
+                        <div class="jr-grad__dip">
+                            <label class="jr-grad-field jr-grad-field--inline">
+                                <span>DIP <span class="jr-text-muted fw-normal">(distancia interpupilar)</span></span>
+                                <input type="text" inputmode="decimal" data-grad="dip" class="jr-grad-input" placeholder="mm" aria-label="Distancia interpupilar">
+                            </label>
+                        </div>
+
+                        <button type="button" class="jr-grad__clear" data-grad-clear>
+                            <i class="fa-solid fa-eraser me-1"></i> Borrar graduación
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
