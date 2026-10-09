@@ -1059,7 +1059,7 @@ button:focus-visible,
 }
 
 .jr-share__logo {
-  height: 140px;
+  height: 180px;
   width: auto;
   margin-bottom: 1.25rem;
 }
@@ -1144,7 +1144,7 @@ button:focus-visible,
 
 /* Pantallas muy bajas: compacta para que todo quepa sin scroll */
 @media (max-height: 680px) {
-  .jr-share__logo { height: 140px; margin-bottom: .75rem; }
+  .jr-share__logo { height: 180px; margin-bottom: .75rem; }
   .jr-share__lead { margin-bottom: 1rem; }
   .jr-share__qr { width: clamp(150px, 42vw, 190px); height: clamp(150px, 42vw, 190px); }
   .jr-share__cta { margin-bottom: 1rem; }
