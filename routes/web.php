@@ -24,6 +24,11 @@ Route::get('/programas', [CatalogController::class, 'programas'])->name('program
 Route::get('/contacto', [AppointmentController::class, 'create'])->name('contacto');
 Route::post('/contacto', [AppointmentController::class, 'store'])->name('contacto.store');
 
+// Página para compartir: hero + código QR al sitio, pantalla completa,
+// sin barra de navegación. Pensada para imprimir/mostrar y que el cliente
+// escanee para visitar el sitio.
+Route::get('/share', [CatalogController::class, 'share'])->name('share');
+
 /*
 |--------------------------------------------------------------------------
 | Panel de administración (futuro)

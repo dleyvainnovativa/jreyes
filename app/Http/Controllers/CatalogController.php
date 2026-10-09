@@ -133,4 +133,28 @@ class CatalogController extends Controller
 
         return view('pages.programas', compact('whatsapp'));
     }
+
+    /**
+     * Página para compartir: hero a pantalla completa con un código QR que
+     * apunta al inicio del sitio, más botones de redes sociales. Sin navbar
+     * ni footer (usa su propio layout mínimo).
+     */
+    public function share()
+    {
+        $whatsapp = config('services.whatsapp.number');
+
+        return view('pages.share', [
+            'urlSitio'  => route('home'),
+            'whatsapp'  => $whatsapp,
+            // Enlaces de redes sociales desde .env (con marcadores por defecto).
+            'social'    => [
+                'whatsapp'  => $whatsapp
+                    ? 'https://wa.me/' . preg_replace('/\D/', '', $whatsapp)
+                    : config('services.social.whatsapp'),
+                'facebook'  => config('services.social.facebook'),
+                'instagram' => config('services.social.instagram'),
+                'tiktok'    => config('services.social.tiktok'),
+            ],
+        ]);
+    }
 }

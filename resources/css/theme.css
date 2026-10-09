@@ -1015,3 +1015,137 @@ button:focus-visible,
   .jr-grad__table-wrap { display: none; }
   .jr-grad__cards { display: block; }
 }
+
+/* --------------------------------------------------------------------------
+   Página /share — hero + QR a pantalla completa, sin navbar
+   -------------------------------------------------------------------------- */
+.jr-share-body {
+  min-height: 100dvh;
+  display: flex;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(251, 203, 102, .10), transparent 60%),
+    var(--jr-bg);
+}
+.jr-share {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Respeta notch / barras del sistema en móvil */
+  padding: max(1.25rem, env(safe-area-inset-top))
+           max(1.25rem, env(safe-area-inset-right))
+           max(1.25rem, env(safe-area-inset-bottom))
+           max(1.25rem, env(safe-area-inset-left));
+}
+.jr-share__panel {
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* En escritorio, el panel se ve como una tarjeta centrada */
+@media (min-width: 768px) {
+  .jr-share__panel {
+    max-width: 480px;
+    background: var(--jr-surface);
+    border: 1px solid var(--jr-line);
+    border-radius: var(--jr-radius-lg);
+    box-shadow: var(--jr-shadow-lg);
+    padding: 2.5rem 2.75rem;
+  }
+}
+
+.jr-share__logo {
+  height: 64px;
+  width: auto;
+  margin-bottom: 1.25rem;
+}
+.jr-share__title {
+  font-family: var(--jr-font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  margin: 0 0 .75rem;
+}
+.jr-share__title em {
+  font-style: italic;
+  color: var(--jr-gold);
+}
+.jr-share__lead {
+  color: var(--jr-text-muted);
+  font-size: .98rem;
+  margin: 0 0 1.5rem;
+  max-width: 40ch;
+}
+
+/* QR */
+.jr-share__qr-wrap { margin-bottom: 1.4rem; }
+.jr-share__qr {
+  width: clamp(180px, 56vw, 230px);
+  height: clamp(180px, 56vw, 230px);
+  margin: 0 auto;
+  background: #fff;
+  border-radius: var(--jr-radius);
+  padding: 14px;
+  box-shadow: var(--jr-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.jr-share__qr svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  shape-rendering: crispEdges; /* QR nítido, sin anti-alias borroso */
+}
+.jr-share__qr a { /* respaldo mientras carga el JS */
+  color: #111;
+  font-size: .8rem;
+  word-break: break-all;
+}
+.jr-share__qr-hint {
+  margin: .7rem 0 0;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--jr-text-muted);
+}
+
+.jr-share__cta { margin-bottom: 1.5rem; }
+
+/* Redes sociales con texto */
+.jr-share__social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  justify-content: center;
+  width: 100%;
+}
+.jr-share__social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem 1rem;
+  border-radius: var(--jr-radius-pill);
+  font-weight: 600;
+  font-size: .9rem;
+  color: #fff;
+  border: 1px solid transparent;
+  transition: transform .12s ease, filter .15s ease;
+}
+.jr-share__social-btn:hover { transform: translateY(-2px); filter: brightness(1.08); color: #fff; }
+.jr-share__social-btn i { font-size: 1.05rem; }
+.jr-share__social-btn--wa { background: #25D366; }
+.jr-share__social-btn--ig { background: linear-gradient(45deg, #f09433, #e6683c 35%, #dc2743 55%, #cc2366 75%, #bc1888); }
+.jr-share__social-btn--fb { background: #1877F2; }
+.jr-share__social-btn--tt { background: #010101; border-color: #333; }
+
+/* Pantallas muy bajas: compacta para que todo quepa sin scroll */
+@media (max-height: 680px) {
+  .jr-share__logo { height: 48px; margin-bottom: .75rem; }
+  .jr-share__lead { margin-bottom: 1rem; }
+  .jr-share__qr { width: clamp(150px, 42vw, 190px); height: clamp(150px, 42vw, 190px); }
+  .jr-share__cta { margin-bottom: 1rem; }
+}

@@ -38,4 +38,19 @@ return [
         'number' => env('WHATSAPP_NUMBER'), // con código de país, sin "+" ni espacios
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Redes sociales (página /share)
+    |--------------------------------------------------------------------------
+    | URLs completas de los perfiles. Pon los reales en el .env; mientras
+    | tanto quedan marcadores (#) y los botones siguen visibles.
+    */
+    'social' => [
+        'facebook'  => env('SOCIAL_FACEBOOK', '#'),
+        'instagram' => env('SOCIAL_INSTAGRAM', '#'),
+        'tiktok'    => env('SOCIAL_TIKTOK', '#'),
+        // WhatsApp se arma desde WHATSAPP_NUMBER; este es el respaldo.
+        'whatsapp'  => env('SOCIAL_WHATSAPP', '#'),
+    ],
+
 ];
