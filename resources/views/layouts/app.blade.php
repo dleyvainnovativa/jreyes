@@ -6,6 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- Tema claro/oscuro: fijar antes de pintar para evitar parpadeo.
+         Usa la elección guardada; si no hay, sigue la preferencia del sistema. --}}
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem('jr-theme');
+                var prefersLight = window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: light)').matches;
+                var theme = stored || (prefersLight ? 'light' : 'dark');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <title>@yield('title', 'JReyes Ópticos') — JReyes Ópticos</title>
     <meta name="description" content="@yield('meta_description', 'Óptica JReyes: lentes graduados, progresivos Varilux, tratamientos Crizal y lentes de contacto. Mejora lo que ves.')">
 

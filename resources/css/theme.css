@@ -54,7 +54,93 @@
   --bs-border-radius: var(--jr-radius);
   --bs-link-color: var(--jr-gold);
   --bs-link-hover-color: var(--jr-gold-300);
+
+  /* Oro legible como TEXTO (sobre superficies oscuras = el oro de marca). */
+  --jr-gold-ink: var(--jr-gold);
 }
+
+/* --------------------------------------------------------------------------
+   1b. Tema claro — cálido y premium (no blanco puro).
+   Se activa con <html data-theme="light">. La mayoría de componentes usan
+   tokens --jr-* y cambian solos; aquí se redefinen esos tokens y se corrigen
+   los pocos lugares con colores fijos o con oro usado como texto.
+   -------------------------------------------------------------------------- */
+:root[data-theme="light"] {
+  /* Superficies claras y cálidas */
+  --jr-bg: #f7f3ec;
+  --jr-bg-2: #f1ebe1;
+  --jr-surface: #fffdf9;
+  --jr-surface-2: #f3ece1;
+  --jr-line: #e3d9c8;
+
+  /* Oro adaptado al fondo claro: el oro pálido de marca (#fbcb66) se "lava"
+     sobre claro, así que la escala baja a tonos ámbar más profundos para los
+     usos decorativos (íconos, bordes, relleno de botones, foco). El oro como
+     TEXTO usa el tono aún más oscuro --jr-gold-ink de más abajo. */
+  --jr-gold: #d99b1c;
+  --jr-gold-300: #e8b547;
+  --jr-gold-600: #b87d10;
+
+  /* Texto */
+  --jr-text: #231d17;
+  --jr-text-muted: #6a5d4e;
+  --jr-text-dim: #8f8273;
+
+  /* Sombras suaves (cálidas, no negras) para fondo claro */
+  --jr-shadow: 0 2px 8px rgba(60, 42, 20, .08);
+  --jr-shadow-lg: 0 14px 34px rgba(60, 42, 20, .14);
+  --jr-shadow-gold: 0 8px 28px rgba(224, 172, 63, .22);
+
+  /* Enlaces y oro-como-texto: tono de oro oscuro, legible sobre claro */
+  --jr-gold-ink: #96670f;
+  --bs-link-color: #96670f;
+  --bs-link-hover-color: #7a520b;
+}
+
+/* (El oro usado como texto apunta a --jr-gold-ink en sus reglas originales:
+   .jr-eyebrow, .jr-text-gold y .jr-card__price.) */
+
+/* Barra de navegación: fondo fijo por tema (no puede ser token translúcido). */
+:root[data-theme="light"] .jr-navbar { background: rgba(247, 243, 236, .96); }
+
+/* Insignia premium: en claro, oro-texto oscuro sobre oro pálido. */
+:root[data-theme="light"] .jr-badge-premium {
+  color: #7a520b;
+  background: rgba(224, 172, 63, .16);
+  border-color: rgba(224, 172, 63, .5);
+}
+
+/* Error de formulario: rojo legible sobre claro. */
+:root[data-theme="light"] .invalid-feedback { color: #c42026; }
+
+/* Ícono del botón hamburguesa: sigue el color de texto del tema. */
+.jr-navbar .navbar-toggler i { color: var(--jr-text); }
+
+/* Botón de cerrar del offcanvas: blanco en oscuro, oscuro (default) en claro. */
+.jr-offcanvas .btn-close { filter: invert(1) grayscale(100%) brightness(2); }
+:root[data-theme="light"] .jr-offcanvas .btn-close { filter: none; }
+
+/* --------------------------------------------------------------------------
+   1c. Botón de cambio de tema (claro/oscuro)
+   -------------------------------------------------------------------------- */
+.jr-theme-toggle {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--jr-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: .4rem .55rem;
+  transition: color .15s ease;
+}
+.jr-theme-toggle:hover { color: var(--jr-gold); }
+.jr-theme-toggle .icon-moon { display: none; }
+.jr-theme-toggle .icon-sun  { display: inline-block; }
+:root[data-theme="light"] .jr-theme-toggle .icon-sun  { display: none; }
+:root[data-theme="light"] .jr-theme-toggle .icon-moon { display: inline-block; }
 
 /* --------------------------------------------------------------------------
    2. Base
@@ -82,11 +168,11 @@ h1, h2, h3, h4, .display-1, .display-2, .display-3, .display-4 {
   font-size: .78rem;
   letter-spacing: .18em;
   text-transform: uppercase;
-  color: var(--jr-gold);
+  color: var(--jr-gold-ink);
 }
 
 .jr-text-muted { color: var(--jr-text-muted) !important; }
-.jr-text-gold  { color: var(--jr-gold) !important; }
+.jr-text-gold  { color: var(--jr-gold-ink) !important; }
 .jr-text-red   { color: var(--jr-red) !important; }
 
 a { text-decoration: none; }
@@ -243,7 +329,7 @@ button:focus-visible,
 }
 .jr-hero__media {
   position: relative;
-  aspect-ratio: 16 / 9;
+  /* aspect-ratio: 16 / 9; */
   /* border-radius: var(--jr-radius-lg); */
   overflow: hidden;
   /* box-shadow: var(--jr-shadow-lg); */
@@ -302,7 +388,7 @@ button:focus-visible,
 .jr-card__title { font-size: 1.25rem; margin-bottom: .4rem; }
 .jr-card__price {
   font-family: var(--jr-font-display);
-  color: var(--jr-gold);
+  color: var(--jr-gold-ink);
   font-weight: 600;
 }
 

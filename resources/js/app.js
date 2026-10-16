@@ -9,6 +9,7 @@ import * as http from './modules/http.js';
 import { toast } from './modules/notify.js';
 import { initReveal } from './modules/reveal.js';
 import { initNavbar } from './modules/navbar.js';
+import { initTheme } from './modules/theme.js';
 import { initConfigurator } from './modules/configurator.js';
 import { initContactFilter } from './modules/contact-filter.js';
 
@@ -16,6 +17,7 @@ import { initContactFilter } from './modules/contact-filter.js';
 window.JR = { http, toast };
 
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initNavbar();
   initReveal();
   initConfigurator();

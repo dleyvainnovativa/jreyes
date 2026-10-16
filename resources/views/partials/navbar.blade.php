@@ -6,11 +6,20 @@
             <img src="{{ asset('img/logo-jreyes.png') }}" alt="JReyes Ópticos">
         </a>
 
-        {{-- Botón que abre el offcanvas en móvil --}}
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#jrNav"
-            aria-controls="jrNav" aria-label="Abrir menú">
-            <i class="fa-solid fa-bars text-light"></i>
-        </button>
+        {{-- Controles en la barra superior en móvil: cambio de tema + menú (solo < lg) --}}
+        <div class="d-flex align-items-center gap-1 d-lg-none">
+            <button type="button" class="jr-theme-toggle" data-theme-toggle
+                aria-pressed="false" aria-label="Cambiar a tema claro" title="Cambiar a tema claro">
+                <i class="fa-solid fa-sun icon-sun" aria-hidden="true"></i>
+                <i class="fa-solid fa-moon icon-moon" aria-hidden="true"></i>
+            </button>
+
+            {{-- Botón que abre el offcanvas en móvil --}}
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#jrNav"
+                aria-controls="jrNav" aria-label="Abrir menú">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
 
         {{-- Offcanvas en móvil; se comporta como nav normal en ≥lg --}}
         <div class="offcanvas offcanvas-end jr-offcanvas" tabindex="-1" id="jrNav" aria-labelledby="jrNavLabel">
@@ -18,7 +27,7 @@
                 <a class="navbar-brand" href="{{ route('home') }}" id="jrNavLabel">
                     <img src="{{ asset('img/logo-jreyes.png') }}" alt="JReyes Ópticos" style="height:40px">
                 </a>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
             </div>
             <div class="offcanvas-body">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-0 gap-2">
@@ -70,6 +79,15 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('programas') ? 'active' : '' }}" href="{{ route('programas') }}">Programas</a>
+                    </li>
+
+                    {{-- Cambio de tema claro/oscuro (solo escritorio; en móvil va en la barra superior) --}}
+                    <li class="nav-item d-none d-lg-flex align-items-lg-center">
+                        <button type="button" class="jr-theme-toggle nav-link" data-theme-toggle
+                            aria-pressed="false" aria-label="Cambiar a tema claro" title="Cambiar a tema claro">
+                            <i class="fa-solid fa-sun icon-sun" aria-hidden="true"></i>
+                            <i class="fa-solid fa-moon icon-moon" aria-hidden="true"></i>
+                        </button>
                     </li>
                 </ul>
             </div>
