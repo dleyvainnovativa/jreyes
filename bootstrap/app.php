@@ -11,11 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // El middleware de Firebase queda registrado pero inactivo:
-        // se aplicará a las rutas del panel cuando se habilite el login.
-        $middleware->alias([
-            'firebase.auth' => \App\Http\Middleware\VerifyFirebaseToken::class,
-        ]);
+        // El panel /admin usa el middleware 'auth' nativo de Laravel.
+        // (Se retiró el stub de Firebase 'firebase.auth'.)
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

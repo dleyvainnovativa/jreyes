@@ -1236,3 +1236,110 @@ button:focus-visible,
   .jr-share__qr { width: clamp(150px, 42vw, 190px); height: clamp(150px, 42vw, 190px); }
   .jr-share__cta { margin-bottom: 1rem; }
 }
+
+/* ==========================================================================
+   Panel de administración (/admin) y acceso
+   Reutiliza los tokens --jr-*, así que funciona en tema claro y oscuro.
+   ========================================================================== */
+.jr-admin { background: var(--jr-bg); color: var(--jr-text); min-height: 100vh; }
+
+.jr-admin-topbar {
+  background: var(--jr-bg-2);
+  border-bottom: 1px solid var(--jr-line);
+  padding: .7rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+.jr-admin-topbar__brand img { height: 38px; width: auto; }
+.jr-admin-topbar__brand { color: var(--jr-text); }
+.jr-admin-topbar__tag {
+  font-family: var(--jr-font-display);
+  font-size: 1.05rem;
+  color: var(--jr-gold-ink);
+}
+.jr-admin-topbar__user { color: var(--jr-text-muted); font-weight: 600; font-size: .9rem; }
+
+.jr-admin-main { padding: 2rem 0 3rem; }
+.jr-admin-head { margin-bottom: .5rem; }
+.jr-admin-title { font-size: 2rem; margin-bottom: .3rem; }
+
+/* Tarjetas de resumen */
+.jr-stat {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-lg);
+  padding: 1.2rem 1.3rem;
+  height: 100%;
+}
+.jr-stat__num {
+  font-family: var(--jr-font-display);
+  font-size: 2.1rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--jr-text);
+}
+.jr-stat__label { color: var(--jr-text-muted); font-size: .85rem; margin-top: .35rem; }
+
+.jr-admin-soon {
+  background: var(--jr-surface-2);
+  border: 1px dashed var(--jr-line);
+  border-radius: var(--jr-radius);
+  padding: 1rem 1.2rem;
+  color: var(--jr-text-muted);
+}
+
+/* Acceso (login) */
+.jr-login {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1rem;
+  position: relative;
+}
+.jr-login__theme { position: absolute; top: 1rem; right: 1rem; }
+.jr-login__card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-lg);
+  box-shadow: var(--jr-shadow-lg);
+  padding: 2rem 1.9rem;
+}
+.jr-login__head { text-align: center; margin-bottom: 1.4rem; }
+.jr-login__logo { height: 52px; width: auto; margin-bottom: 1rem; }
+.jr-login__title { font-size: 1.6rem; margin: 0; }
+.jr-login__error {
+  background: rgba(245, 34, 40, .12);
+  border: 1px solid var(--jr-red);
+  color: var(--jr-text);
+  border-radius: var(--jr-radius);
+  padding: .6rem .85rem;
+  font-size: .9rem;
+  margin-bottom: 1rem;
+}
+.jr-login__back { color: var(--jr-text-muted); font-size: .9rem; }
+.jr-login__back:hover { color: var(--jr-gold); }
+
+/* Campos de formulario sobre superficie (coherentes en ambos temas) */
+.jr-login__card .form-control,
+.jr-admin .form-control,
+.jr-admin .form-select {
+  background: var(--jr-bg-2);
+  border: 1px solid var(--jr-line);
+  color: var(--jr-text);
+}
+.jr-login__card .form-control:focus,
+.jr-admin .form-control:focus,
+.jr-admin .form-select:focus {
+  background: var(--jr-bg-2);
+  border-color: var(--jr-gold);
+  color: var(--jr-text);
+  box-shadow: none;
+}
+.jr-login__card .form-label,
+.jr-admin .form-label { color: var(--jr-text-muted); font-weight: 600; font-size: .9rem; }

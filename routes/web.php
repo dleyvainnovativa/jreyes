@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CatalogController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,11 +33,21 @@ Route::get('/share', [CatalogController::class, 'share'])->name('share');
 
 /*
 |--------------------------------------------------------------------------
-| Panel de administración (futuro)
+| Acceso y panel de administración
 |--------------------------------------------------------------------------
-| Cuando se habilite Firebase, envolver estas rutas con ->middleware('firebase.auth').
-|
-| Route::middleware('firebase.auth')->prefix('admin')->group(function () {
-|     // gestión de catálogo, precios y solicitudes de cita
-| });
+| Login nativo de Laravel (sesión). El panel vive bajo /admin y queda
+| protegido por el middleware 'auth'. El usuario admin se crea con
+| AdminUserSeeder (credenciales en .env).
 */
+
+// Acceso (público).
+Route::get('/admin/login', [LoginController::class, 'show'])->name('login');
+Route::post('/admin/login', [LoginController::class, 'login'])->name('login.store');
+Route::post('/admin/logout', [LoginController::class, 'logout'])->name('logout');
+
+// Panel protegido.
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Próximos pasos (editor del árbol, subida de imágenes) se agregan aquí.
+});
