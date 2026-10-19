@@ -36,8 +36,14 @@
         </div>
     </div>
 
-    <div class="jr-admin-soon mt-4">
+    <div class="mt-4 d-flex flex-wrap gap-2">
+        <a href="{{ route('admin.catalogo') }}" class="btn btn-jr-primary">
+            <i class="fa-solid fa-sitemap me-1" aria-hidden="true"></i> Editar árbol de lentes
+        </a>
+    </div>
+
+    <div class="jr-admin-soon mt-3">
         <i class="fa-solid fa-screwdriver-wrench jr-text-gold me-2" aria-hidden="true"></i>
-        Edición de precios, nombres, imágenes y relaciones del árbol — en construcción.
+        Subida de imágenes y cambio de relaciones del árbol — en construcción.
     </div>
 @endsection

@@ -1343,3 +1343,93 @@ button:focus-visible,
 }
 .jr-login__card .form-label,
 .jr-admin .form-label { color: var(--jr-text-muted); font-weight: 600; font-size: .9rem; }
+
+/* --------------------------------------------------------------------------
+   Panel · Editor del árbol de catálogo
+   -------------------------------------------------------------------------- */
+.jr-admin-flash {
+  background: rgba(16, 150, 70, .14);
+  border: 1px solid #1f9d57;
+  color: var(--jr-text);
+  border-radius: var(--jr-radius);
+  padding: .6rem .9rem;
+  margin-top: 1rem;
+  font-size: .92rem;
+}
+
+/* Pestañas por tipo */
+.jr-tree-tabs { display: flex; flex-wrap: wrap; gap: .4rem; }
+.jr-tree-tab {
+  border: 1px solid var(--jr-line);
+  color: var(--jr-text-muted);
+  background: var(--jr-surface);
+  border-radius: var(--jr-radius-pill);
+  padding: .4rem 1rem;
+  font-weight: 600;
+  font-size: .9rem;
+}
+.jr-tree-tab:hover { color: var(--jr-text); border-color: var(--jr-gold-600); }
+.jr-tree-tab.is-active {
+  background: var(--jr-red);
+  border-color: var(--jr-red);
+  color: #fff;
+}
+
+/* Filas del árbol */
+.jr-tree {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-lg);
+  overflow: hidden;
+}
+.jr-tree__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .6rem .9rem;
+  padding-left: calc(.9rem + var(--depth, 0) * 1.35rem);
+  border-bottom: 1px solid var(--jr-line);
+}
+.jr-tree__row:last-child { border-bottom: 0; }
+.jr-tree__row.is-hidden { opacity: .55; }
+.jr-tree__main { display: flex; align-items: center; gap: .55rem; min-width: 0; flex-wrap: wrap; }
+.jr-tree__name { font-weight: 600; color: var(--jr-text); }
+.jr-tree__kind {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--jr-text-dim);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-pill);
+  padding: .05rem .5rem;
+}
+.jr-tree__badge {
+  font-size: .68rem;
+  font-weight: 700;
+  border-radius: var(--jr-radius-pill);
+  padding: .05rem .5rem;
+}
+.jr-tree__badge--off { color: var(--jr-text-dim); border: 1px solid var(--jr-line); }
+.jr-tree__badge--extra { color: var(--jr-gold-ink); border: 1px solid var(--jr-gold-600); }
+.jr-tree__side { display: flex; align-items: center; gap: .9rem; flex: 0 0 auto; }
+.jr-tree__price { font-family: var(--jr-font-display); color: var(--jr-gold-ink); font-weight: 600; white-space: nowrap; }
+
+/* Tarjeta de edición */
+.jr-edit-card {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-lg);
+  padding: 1.5rem 1.6rem;
+  max-width: 820px;
+}
+.jr-edit-actions { display: flex; gap: .6rem; justify-content: flex-end; }
+.jr-edit-img { display: flex; align-items: center; gap: .8rem; }
+.jr-edit-img img {
+  width: 120px;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius);
+}

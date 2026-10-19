@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CatalogNodeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\LoginController;
@@ -49,5 +50,10 @@ Route::post('/admin/logout', [LoginController::class, 'logout'])->name('logout')
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Próximos pasos (editor del árbol, subida de imágenes) se agregan aquí.
+    // Editor del árbol de catálogo.
+    Route::get('/catalogo', [CatalogNodeController::class, 'index'])->name('catalogo');
+    Route::get('/catalogo/{node}/editar', [CatalogNodeController::class, 'edit'])->name('catalogo.edit');
+    Route::put('/catalogo/{node}', [CatalogNodeController::class, 'update'])->name('catalogo.update');
+
+    // Próximos pasos (subida de imágenes, relaciones) se agregan aquí.
 });
