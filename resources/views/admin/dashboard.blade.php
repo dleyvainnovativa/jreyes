@@ -44,6 +44,6 @@
 
     <div class="jr-admin-soon mt-3">
         <i class="fa-solid fa-screwdriver-wrench jr-text-gold me-2" aria-hidden="true"></i>
-        Subida de imágenes y cambio de relaciones del árbol — en construcción.
+        Cambio de relaciones del árbol (mover nodos de lugar) — en construcción.
     </div>
 @endsection

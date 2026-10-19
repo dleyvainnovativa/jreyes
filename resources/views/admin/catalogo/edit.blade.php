@@ -21,7 +21,7 @@
     @endif
 
     <div class="jr-edit-card mt-3">
-        <form method="POST" action="{{ route('admin.catalogo.update', $node) }}" novalidate>
+        <form method="POST" action="{{ route('admin.catalogo.update', $node) }}" enctype="multipart/form-data" novalidate>
             @csrf
             @method('PUT')
 
@@ -71,16 +71,32 @@
                     </div>
                 </div>
 
-                @if ($node->imagen)
-                    <div class="col-12">
-                        <label class="form-label">Imagen actual</label>
-                        <div class="jr-edit-img">
+                <div class="col-12">
+                    <label for="imagen" class="form-label">Imagen (opcional)</label>
+
+                    @if ($node->imagen)
+                        <div class="jr-edit-img mb-2">
                             <img src="{{ asset($node->imagen) }}" alt="{{ $node->nombre }}">
                             <span class="jr-text-dim">{{ $node->imagen }}</span>
                         </div>
-                        <small class="jr-text-dim">La edición de imagen llega en el siguiente paso.</small>
-                    </div>
-                @endif
+                    @else
+                        <p class="jr-text-dim mb-2">Este nodo no tiene imagen.</p>
+                    @endif
+
+                    <input type="file" id="imagen" name="imagen" class="form-control"
+                        accept="image/jpeg,image/png,image/webp">
+                    <small class="jr-text-dim">
+                        JPG, PNG o WebP · máx. 3 MB · se recomienda 16:9 · se guarda como
+                        <code>img/catalog/{{ $node->slug }}.&lt;ext&gt;</code>
+                    </small>
+
+                    @if ($node->imagen)
+                        <div class="form-check mt-2">
+                            <input type="checkbox" id="quitar_imagen" name="quitar_imagen" value="1" class="form-check-input">
+                            <label for="quitar_imagen" class="form-check-label">Quitar la imagen actual</label>
+                        </div>
+                    @endif
+                </div>
             </div>
 
             <div class="jr-edit-actions mt-4">

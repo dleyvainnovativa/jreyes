@@ -66,6 +66,8 @@ class CatalogNodeController extends Controller
             'orden'       => ['required', 'integer', 'min:0'],
             'es_extra'    => ['nullable', 'boolean'],
             'activo'      => ['nullable', 'boolean'],
+            'imagen'      => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:3072'],
+            'quitar_imagen' => ['nullable', 'boolean'],
         ], [
             'nombre.required' => 'El nombre es obligatorio.',
             'slug.required'   => 'El slug es obligatorio.',
@@ -73,15 +75,53 @@ class CatalogNodeController extends Controller
             'precio.numeric'  => 'El precio debe ser un número.',
             'precio.min'      => 'El precio no puede ser negativo.',
             'orden.integer'   => 'El orden debe ser un número entero.',
+            'imagen.image'    => 'El archivo debe ser una imagen.',
+            'imagen.mimes'    => 'Usa una imagen JPG, PNG o WebP.',
+            'imagen.max'      => 'La imagen no debe pasar de 3 MB.',
         ]);
 
         $datos['es_extra'] = $request->boolean('es_extra');
         $datos['activo']   = $request->boolean('activo');
 
+        // Guarda primero los campos de texto (para que el slug quede definitivo
+        // antes de nombrar la imagen). La imagen se maneja aparte.
+        unset($datos['imagen'], $datos['quitar_imagen']);
         $node->update($datos);
+
+        // --- Imagen -----------------------------------------------------------
+        if ($request->hasFile('imagen')) {
+            $this->eliminarImagen($node->imagen);
+
+            $ext    = strtolower($request->file('imagen')->getClientOriginalExtension() ?: 'jpg');
+            $nombre = $node->slug . '.' . $ext;
+            $destino = public_path('img/catalog');
+            if (! is_dir($destino)) {
+                @mkdir($destino, 0755, true);
+            }
+            $request->file('imagen')->move($destino, $nombre);
+
+            $node->update(['imagen' => 'img/catalog/' . $nombre]);
+        } elseif ($request->boolean('quitar_imagen')) {
+            $this->eliminarImagen($node->imagen);
+            $node->update(['imagen' => null]);
+        }
 
         return redirect()
             ->route('admin.catalogo', ['tipo' => $node->tipo])
             ->with('exito', "Nodo «{$node->nombre}» actualizado.");
+    }
+
+    /**
+     * Borra del disco una imagen anterior del nodo, solo si vive dentro de
+     * img/catalog/ (para no tocar imágenes sembradas en otras carpetas).
+     */
+    private function eliminarImagen(?string $ruta): void
+    {
+        if ($ruta && str_starts_with($ruta, 'img/catalog/')) {
+            $archivo = public_path($ruta);
+            if (is_file($archivo)) {
+                @unlink($archivo);
+            }
+        }
     }
 }
