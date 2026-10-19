@@ -41,9 +41,4 @@
             <i class="fa-solid fa-sitemap me-1" aria-hidden="true"></i> Editar árbol de lentes
         </a>
     </div>
-
-    <div class="jr-admin-soon mt-3">
-        <i class="fa-solid fa-screwdriver-wrench jr-text-gold me-2" aria-hidden="true"></i>
-        Cambio de relaciones del árbol (mover nodos de lugar) — en construcción.
-    </div>
 @endsection

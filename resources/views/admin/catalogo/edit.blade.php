@@ -53,6 +53,23 @@
                 </div>
 
                 <div class="col-12">
+                    <label for="parent_id" class="form-label">Padre (ubicación en el árbol)</label>
+                    <select id="parent_id" name="parent_id" class="form-select">
+                        <option value="">(Raíz de {{ $tipoNombre }})</option>
+                        @foreach ($opcionesPadre as $op)
+                            <option value="{{ $op['id'] }}"
+                                {{ (int) old('parent_id', $node->parent_id) === $op['id'] ? 'selected' : '' }}>
+                                {{ $op['label'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <small class="jr-text-dim">
+                        Mueve el nodo (y su subárbol) a otro padre del mismo tipo.
+                        No aparecen el nodo ni sus descendientes, para evitar ciclos.
+                    </small>
+                </div>
+
+                <div class="col-12">
                     <label for="descripcion" class="form-label">Descripción (opcional)</label>
                     <input type="text" id="descripcion" name="descripcion" class="form-control"
                         maxlength="255" value="{{ old('descripcion', $node->descripcion) }}">

@@ -45,11 +45,51 @@ class CatalogNodeController extends Controller
     public function edit(CatalogNode $node)
     {
         return view('admin.catalogo.edit', [
-            'node'      => $node,
-            'padre'     => $node->parent,
-            'numHijos'  => $node->children()->count(),
-            'tipoNombre' => self::TIPOS[$node->tipo] ?? $node->tipo,
+            'node'          => $node,
+            'padre'         => $node->parent,
+            'numHijos'      => $node->children()->count(),
+            'tipoNombre'    => self::TIPOS[$node->tipo] ?? $node->tipo,
+            'opcionesPadre' => $this->opcionesPadre($node),
         ]);
+    }
+
+    /**
+     * Lista de padres válidos para mover un nodo: todos los del mismo tipo,
+     * en orden de árbol y con sangría, excluyendo el propio nodo y su subárbol
+     * (para no crear ciclos). Devuelve [ ['id'=>int, 'label'=>string], ... ].
+     */
+    private function opcionesPadre(CatalogNode $node): array
+    {
+        $todos    = CatalogNode::deTipo($node->tipo)->get();
+        $prohibidos = $this->subtreeIds($node); // incluye al propio nodo
+        $opciones = [];
+
+        $recorrer = function ($parentId, int $depth) use (&$recorrer, $todos, $prohibidos, &$opciones) {
+            foreach ($todos->where('parent_id', $parentId)->sortBy('orden') as $n) {
+                if (in_array($n->id, $prohibidos, true)) {
+                    continue; // salta el nodo y todo su subárbol
+                }
+                $opciones[] = [
+                    'id'    => $n->id,
+                    'label' => str_repeat('— ', $depth) . $n->nombre,
+                ];
+                $recorrer($n->id, $depth + 1);
+            }
+        };
+        $recorrer(null, 0);
+
+        return $opciones;
+    }
+
+    /** IDs del nodo y de todos sus descendientes (recursivo). */
+    private function subtreeIds(CatalogNode $node): array
+    {
+        $ids = [$node->id];
+        foreach ($node->children as $hijo) {
+            $ids = array_merge($ids, $this->subtreeIds($hijo));
+        }
+
+        return $ids;
     }
 
     /** Guarda los cambios de un nodo. */
@@ -66,6 +106,7 @@ class CatalogNodeController extends Controller
             'orden'       => ['required', 'integer', 'min:0'],
             'es_extra'    => ['nullable', 'boolean'],
             'activo'      => ['nullable', 'boolean'],
+            'parent_id'   => ['nullable', 'integer'],
             'imagen'      => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:3072'],
             'quitar_imagen' => ['nullable', 'boolean'],
         ], [
@@ -82,6 +123,24 @@ class CatalogNodeController extends Controller
 
         $datos['es_extra'] = $request->boolean('es_extra');
         $datos['activo']   = $request->boolean('activo');
+
+        // --- Padre (mover el nodo) -------------------------------------------
+        // Validación extra: el padre debe ser del mismo tipo y no puede ser el
+        // propio nodo ni uno de sus descendientes (evita ciclos).
+        $parentId = $request->input('parent_id');
+        $parentId = ($parentId === null || $parentId === '') ? null : (int) $parentId;
+
+        if ($parentId !== null) {
+            $padre = CatalogNode::find($parentId);
+            $prohibidos = $this->subtreeIds($node);
+
+            if (! $padre || $padre->tipo !== $node->tipo || in_array($parentId, $prohibidos, true)) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['parent_id' => 'Padre inválido: debe ser del mismo tipo y no puede ser el nodo ni uno de sus descendientes.']);
+            }
+        }
+        $datos['parent_id'] = $parentId;
 
         // Guarda primero los campos de texto (para que el slug quede definitivo
         // antes de nombrar la imagen). La imagen se maneja aparte.
