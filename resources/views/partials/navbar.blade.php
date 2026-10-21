@@ -43,7 +43,7 @@
                         <a class="nav-link dropdown-toggle {{ request()->routeIs('lentes') || request()->routeIs('lentes-contacto') ? 'active' : '' }}"
                             href="{{ route('lentes') }}" id="jrLentesMenu" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            Lentes
+                            Catálogo
                         </a>
                         <ul class="dropdown-menu jr-dropdown-menu" aria-labelledby="jrLentesMenu">
                             <li>
@@ -64,7 +64,9 @@
                                     <i class="fa-solid fa-layer-group me-2"></i> Progresivos
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li>
                                 <a class="dropdown-item {{ request()->routeIs('lentes-contacto') ? 'active' : '' }}"
                                     href="{{ route('lentes-contacto') }}">

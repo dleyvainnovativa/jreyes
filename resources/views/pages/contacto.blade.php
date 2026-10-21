@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Contacto y citas')
-@section('meta_description', 'Agenda tu examen de la vista o solicita una cotización en JReyes Ópticos. Estamos en Veracruz.')
+@section('meta_description', 'Agenda tu examen de la vista o solicita una cotización en JReyes Ópticos. Estamos en Córdoba,Veracruz.')
 
 @section('content')
 
@@ -87,7 +87,7 @@
                     <ul class="list-unstyled d-flex flex-column gap-3 mb-4">
                         <li class="d-flex gap-3">
                             <i class="fa-solid fa-location-dot jr-text-gold mt-1"></i>
-                            <div><strong>Dirección</strong><br><span class="jr-text-muted">Veracruz, Veracruz, México</span></div>
+                            <div><strong>Dirección</strong><br><span class="jr-text-muted">Córdoba, Veracruz, México</span></div>
                         </li>
                         <li class="d-flex gap-3">
                             <i class="fa-solid fa-phone jr-text-gold mt-1"></i>
