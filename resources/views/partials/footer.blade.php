@@ -4,40 +4,53 @@
             <div class="col-lg-4">
                 <img src="{{ asset('img/logo-jreyes.png') }}" alt="JReyes Ópticos" class="jr-footer__logo mb-3">
                 <p class="mb-3" style="max-width:32ch">Mejora lo que ves. Lentes graduados, progresivos de alta gama y lentes de contacto con la mejor asesoría.</p>
-                <div class="d-flex gap-2">
-                    <a href="https://www.facebook.com/jreyes.opticos" class="btn btn-jr-outline btn-sm" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/opticosjreyes" class="btn btn-jr-outline btn-sm" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://www.tiktok.com/@jreyes.opticos1" class="btn btn-jr-outline btn-sm" aria-label="Tiktok"><i class="fa-brands fa-tiktok"></i></a>
-                    <a href="https://wa.me/522711892992" class="btn btn-jr-outline btn-sm" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                <div class="d-flex gap-2 flex-wrap">
+                    @foreach ($ajustes->redes() as $red)
+                        @continue(empty($red->url) || $red->url === '#')
+                        <a href="{{ $red->url }}" target="_blank" rel="noopener"
+                            class="jr-social-btn" style="--c: {{ $red->color }}"
+                            aria-label="{{ ucfirst($red->plataforma) }}">
+                            <i class="{{ $red->icono }}"></i>
+                        </a>
+                    @endforeach
                 </div>
             </div>
 
-            <!-- <div class="col-6 col-lg-2"> -->
-            <!-- <h5 class="mb-3">Catálogo</h5> -->
-            <!-- <ul class="list-unstyled d-flex flex-column gap-2">
+            <div class="col-6 col-lg-2">
+                <h5 class="mb-3">Catálogo</h5>
+                <ul class="list-unstyled d-flex flex-column gap-2">
                     <li><a href="{{ route('lentes') }}">Lentes graduados</a></li>
                     <li><a href="{{ route('marcas') }}">Varilux y Crizal</a></li>
                     <li><a href="{{ route('lentes-contacto') }}">Lentes de contacto</a></li>
                     <li><a href="{{ route('paquetes') }}">Paquetes</a></li>
                     <li><a href="{{ route('empresa') }}">Empresa</a></li>
-                </ul> -->
-            <!-- </div> -->
+                    <li><a href="{{ route('contacto.empresas') }}">Para empresas</a></li>
+                </ul>
+            </div>
 
             <div class="col-6 col-lg-3">
                 <h5 class="mb-3">Contacto</h5>
                 <ul class="list-unstyled d-flex flex-column gap-2">
-                    <li><i class="fa-solid fa-location-dot me-2 jr-text-gold"></i> Córdoba, Veracruz</li>
-                    <li><i class="fa-solid fa-phone me-2 jr-text-gold"></i> (271) 189 2992</li>
-                    <li><i class="fa-solid fa-envelope me-2 jr-text-gold"></i> jreyesopticos@hotmail.com</li>
+                    @if ($ajustes->ubicacion())
+                        <li><i class="fa-solid fa-location-dot me-2 jr-text-gold"></i> {{ $ajustes->ubicacion() }}</li>
+                    @endif
+                    @if ($ajustes->telefono)
+                        <li><i class="fa-solid fa-phone me-2 jr-text-gold"></i> {{ $ajustes->telefono }}</li>
+                    @endif
+                    @if ($ajustes->correo)
+                        <li><i class="fa-solid fa-envelope me-2 jr-text-gold"></i> {{ $ajustes->correo }}</li>
+                    @endif
                 </ul>
             </div>
 
             <div class="col-lg-3">
                 <h5 class="mb-3">Horario</h5>
                 <ul class="list-unstyled d-flex flex-column gap-2">
-                    <li>Lunes a viernes: 9:00 – 19:00</li>
-                    <li>Sábado: 9:00 – 15:00</li>
-                    <li>Domingo: cerrado</li>
+                    @forelse ($ajustes->horario() as $fila)
+                        <li>{{ $fila['etiqueta'] ?? '' }}@if (!empty($fila['horario'])): {{ $fila['horario'] }}@endif</li>
+                    @empty
+                        <li>Lunes a viernes: 9:00 – 19:00</li>
+                    @endforelse
                 </ul>
                 <a href="{{ route('contacto') }}" class="btn btn-jr-gold btn-sm mt-2">Agenda tu examen</a>
             </div>

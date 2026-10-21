@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AdminUserSeeder::class,
+            SiteSettingsSeeder::class,
             CatalogSeeder::class,
             FramesSeeder::class,
             // El árbol del configurador toma precios de CatalogSeeder,

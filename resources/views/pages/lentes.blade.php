@@ -103,15 +103,15 @@
                                 <tbody>
                                     <tr>
                                         <th scope="row" class="jr-grad-table__eye">OD <span class="jr-text-muted fw-normal">der.</span></th>
-                                        <td><input type="text" inputmode="decimal" data-grad="od-esfera" class="jr-grad-input" aria-label="Esfera ojo derecho" placeholder="0.00"></td>
-                                        <td><input type="text" inputmode="decimal" data-grad="od-cilindro" class="jr-grad-input" aria-label="Cilindro ojo derecho" placeholder="0.00"></td>
+                                        <td><div class="jr-signed"><button type="button" class="jr-sign-btn" data-grad-sign tabindex="-1" aria-label="Cambiar signo (+/−)">±</button><input type="text" inputmode="decimal" data-grad="od-esfera" class="jr-grad-input" aria-label="Esfera ojo derecho" placeholder="0.00"></div></td>
+                                        <td><div class="jr-signed"><button type="button" class="jr-sign-btn" data-grad-sign tabindex="-1" aria-label="Cambiar signo (+/−)">±</button><input type="text" inputmode="decimal" data-grad="od-cilindro" class="jr-grad-input" aria-label="Cilindro ojo derecho" placeholder="0.00"></div></td>
                                         <td><input type="text" inputmode="numeric" data-grad="od-eje" class="jr-grad-input" aria-label="Eje ojo derecho" placeholder="0–180"></td>
                                         <td><input type="text" inputmode="decimal" data-grad="od-add" class="jr-grad-input" aria-label="ADD ojo derecho" placeholder="0.00"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row" class="jr-grad-table__eye">OI <span class="jr-text-muted fw-normal">izq.</span></th>
-                                        <td><input type="text" inputmode="decimal" data-grad="oi-esfera" class="jr-grad-input" aria-label="Esfera ojo izquierdo" placeholder="0.00"></td>
-                                        <td><input type="text" inputmode="decimal" data-grad="oi-cilindro" class="jr-grad-input" aria-label="Cilindro ojo izquierdo" placeholder="0.00"></td>
+                                        <td><div class="jr-signed"><button type="button" class="jr-sign-btn" data-grad-sign tabindex="-1" aria-label="Cambiar signo (+/−)">±</button><input type="text" inputmode="decimal" data-grad="oi-esfera" class="jr-grad-input" aria-label="Esfera ojo izquierdo" placeholder="0.00"></div></td>
+                                        <td><div class="jr-signed"><button type="button" class="jr-sign-btn" data-grad-sign tabindex="-1" aria-label="Cambiar signo (+/−)">±</button><input type="text" inputmode="decimal" data-grad="oi-cilindro" class="jr-grad-input" aria-label="Cilindro ojo izquierdo" placeholder="0.00"></div></td>
                                         <td><input type="text" inputmode="numeric" data-grad="oi-eje" class="jr-grad-input" aria-label="Eje ojo izquierdo" placeholder="0–180"></td>
                                         <td><input type="text" inputmode="decimal" data-grad="oi-add" class="jr-grad-input" aria-label="ADD ojo izquierdo" placeholder="0.00"></td>
                                     </tr>
@@ -124,8 +124,8 @@
                             <div class="jr-grad-eye">
                                 <p class="jr-grad-eye__title">Ojo derecho <span class="jr-text-muted fw-normal">(OD)</span></p>
                                 <div class="jr-grad-eye__fields">
-                                    <label class="jr-grad-field"><span>Esfera</span><input type="text" inputmode="decimal" data-grad-m="od-esfera" placeholder="0.00"></label>
-                                    <label class="jr-grad-field"><span>Cilindro</span><input type="text" inputmode="decimal" data-grad-m="od-cilindro" placeholder="0.00"></label>
+                                    <label class="jr-grad-field"><span>Esfera</span><div class="jr-signed"><button type="button" class="jr-sign-btn" data-grad-sign tabindex="-1" aria-label="Cambiar signo (+/−)">±</button><input type="text" inputmode="decimal" data-grad-m="od-esfera" placeholder="0.00"></div></label>
+                                    <label class="jr-grad-field"><span>Cilindro</span><div class="jr-signed"><button type="button" class="jr-sign-btn" data-grad-sign tabindex="-1" aria-label="Cambiar signo (+/−)">±</button><input type="text" inputmode="decimal" data-grad-m="od-cilindro" placeholder="0.00"></div></label>
                                     <label class="jr-grad-field"><span>Eje</span><input type="text" inputmode="numeric" data-grad-m="od-eje" placeholder="0–180"></label>
                                     <label class="jr-grad-field"><span>ADD</span><input type="text" inputmode="decimal" data-grad-m="od-add" placeholder="0.00"></label>
                                 </div>
@@ -133,8 +133,8 @@
                             <div class="jr-grad-eye">
                                 <p class="jr-grad-eye__title">Ojo izquierdo <span class="jr-text-muted fw-normal">(OI)</span></p>
                                 <div class="jr-grad-eye__fields">
-                                    <label class="jr-grad-field"><span>Esfera</span><input type="text" inputmode="decimal" data-grad-m="oi-esfera" placeholder="0.00"></label>
-                                    <label class="jr-grad-field"><span>Cilindro</span><input type="text" inputmode="decimal" data-grad-m="oi-cilindro" placeholder="0.00"></label>
+                                    <label class="jr-grad-field"><span>Esfera</span><div class="jr-signed"><button type="button" class="jr-sign-btn" data-grad-sign tabindex="-1" aria-label="Cambiar signo (+/−)">±</button><input type="text" inputmode="decimal" data-grad-m="oi-esfera" placeholder="0.00"></div></label>
+                                    <label class="jr-grad-field"><span>Cilindro</span><div class="jr-signed"><button type="button" class="jr-sign-btn" data-grad-sign tabindex="-1" aria-label="Cambiar signo (+/−)">±</button><input type="text" inputmode="decimal" data-grad-m="oi-cilindro" placeholder="0.00"></div></label>
                                     <label class="jr-grad-field"><span>Eje</span><input type="text" inputmode="numeric" data-grad-m="oi-eje" placeholder="0–180"></label>
                                     <label class="jr-grad-field"><span>ADD</span><input type="text" inputmode="decimal" data-grad-m="oi-add" placeholder="0.00"></label>
                                 </div>

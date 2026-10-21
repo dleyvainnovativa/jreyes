@@ -245,12 +245,12 @@ button:focus-visible,
 .btn-jr-gold {
   background: var(--jr-gold);
   border: 1px solid var(--jr-gold);
-  color: #241c0a;
+  color: #241c0a !important;
 }
 .btn-jr-gold:hover {
   background: var(--jr-gold-300);
   border-color: var(--jr-gold-300);
-  color: #241c0a;
+  color: #241c0a !important;
   box-shadow: var(--jr-shadow-gold);
 }
 
@@ -329,7 +329,7 @@ button:focus-visible,
 }
 .jr-hero__media {
   position: relative;
-  /* aspect-ratio: 16 / 9; */
+  aspect-ratio: 16 / 9;
   /* border-radius: var(--jr-radius-lg); */
   overflow: hidden;
   /* box-shadow: var(--jr-shadow-lg); */
@@ -1433,3 +1433,117 @@ button:focus-visible,
   border: 1px solid var(--jr-line);
   border-radius: var(--jr-radius);
 }
+
+/* --------------------------------------------------------------------------
+   Galería de micas (Conócenos) — recuadros 16:9, 2 por fila en móvil, 4 en ≥md
+   -------------------------------------------------------------------------- */
+.jr-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .9rem;
+}
+@media (min-width: 768px) {
+  .jr-gallery { grid-template-columns: repeat(4, 1fr); }
+}
+.jr-gallery__item {
+  margin: 0;
+  background: var(--jr-surface-2);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-lg);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+.jr-gallery__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Campo con botón de signo ± (graduación en móvil sin tecla menos)
+   -------------------------------------------------------------------------- */
+.jr-signed { display: flex; align-items: stretch; gap: .3rem; }
+.jr-signed input { flex: 1 1 auto; min-width: 0; }
+.jr-sign-btn {
+  flex: 0 0 auto;
+  width: 2.1rem;
+  border: 1px solid var(--jr-line);
+  background: var(--jr-surface-2);
+  color: var(--jr-text);
+  border-radius: 7px;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease;
+}
+.jr-sign-btn:hover { border-color: var(--jr-gold-600); color: var(--jr-gold); }
+.jr-sign-btn:active { background: var(--jr-surface); }
+
+/* --------------------------------------------------------------------------
+   Panel · Armazones (grid de administración)
+   -------------------------------------------------------------------------- */
+.jr-armazones-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (min-width: 768px) { .jr-armazones-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1200px) { .jr-armazones-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.jr-armazon-card {
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.jr-armazon-card.is-hidden { opacity: .55; }
+.jr-armazon-card__media {
+  aspect-ratio: 16 / 9;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.jr-armazon-card__media img { width: 100%; height: 100%; object-fit: contain; }
+.jr-armazon-card__body { padding: .8rem .9rem 1rem; }
+
+.jr-btn-danger:hover {
+  border-color: var(--jr-red) !important;
+  color: var(--jr-red) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Botones de redes sociales con color propio por enlace (--c)
+   -------------------------------------------------------------------------- */
+.jr-social-btn {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--jr-line);
+  color: var(--c, var(--jr-text));
+  background: transparent;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.jr-social-btn:hover {
+  background: var(--c, var(--jr-gold));
+  border-color: var(--c, var(--jr-gold));
+  color: #fff;
+}
+
+/* En /share los botones ya traen fondo por color */
+.jr-share__social-btn { background: var(--c, #333) !important; color: #fff; }
+
+/* Ajustes · fila de red social */
+.jr-red-row {
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius);
+  padding: .85rem .9rem;
+}
+.jr-admin .form-control-color { width: 100%; height: 38px; padding: .2rem; }

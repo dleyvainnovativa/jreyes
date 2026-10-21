@@ -109,6 +109,38 @@
     </div>
 </section>
 
+{{-- ===================== CALIDAD DE MICAS ===================== --}}
+<section class="jr-section jr-bg-2">
+    <div class="container">
+        <p class="jr-eyebrow mb-2">Calidad de micas</p>
+        <h2 class="mb-3" style="font-size:clamp(1.8rem,4vw,2.6rem)">Micas que se ven y se sienten mejor</h2>
+        <p class="jr-text-muted mb-4" style="max-width:60ch">Materiales de alta transparencia y acabados cuidados para una visión nítida y cómoda.</p>
+
+        <div class="jr-gallery">
+            @foreach (range(1, 4) as $n)
+                <figure class="jr-gallery__item jr-reveal">
+                    <img src="{{ asset('img/micas/mica-' . $n . '.jpg') }}" alt="Calidad de micas — ejemplo {{ $n }}" loading="lazy">
+                </figure>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+{{-- ===================== CALIDAD DE TRATAMIENTOS ===================== --}}
+<section class="jr-section">
+    <div class="container">
+        <p class="jr-eyebrow mb-2">Calidad de tratamientos</p>
+        <h2 class="mb-3" style="font-size:clamp(1.8rem,4vw,2.6rem)">¿Qué protege cada tratamiento?</h2>
+        <p class="jr-text-muted mb-4" style="max-width:60ch">Los tratamientos Crizal suman capas de protección: UV, luz azul, antirreflejante, antirrayas y repelencia al agua.</p>
+
+        @include('partials.tabla-tratamientos')
+
+        <div class="mt-4">
+            <a href="{{ route('marcas') }}#tratamientos" class="btn btn-jr-outline">Ver más sobre tratamientos</a>
+        </div>
+    </div>
+</section>
+
 {{-- ===================== MECÁNICA OPERATIVA (TIMELINE) ===================== --}}
 <section class="jr-section jr-bg-2">
     <div class="container">

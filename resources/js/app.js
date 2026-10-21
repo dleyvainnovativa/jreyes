@@ -12,6 +12,7 @@ import { initNavbar } from './modules/navbar.js';
 import { initTheme } from './modules/theme.js';
 import { initConfigurator } from './modules/configurator.js';
 import { initContactFilter } from './modules/contact-filter.js';
+import { initContactGrad } from './modules/contact-grad.js';
 
 // Exponer helpers globalmente por comodidad en vistas Blade puntuales.
 window.JR = { http, toast };
@@ -22,4 +23,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initReveal();
   initConfigurator();
   initContactFilter();
+  initContactGrad();
 });

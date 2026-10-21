@@ -352,6 +352,20 @@ export function initConfigurator() {
       });
     });
 
+    // Botón ± : alterna el signo del campo (para poder poner negativos en
+    // móvil, donde el teclado decimal no trae el signo menos).
+    grad.querySelectorAll('[data-grad-sign]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const input = btn.parentElement.querySelector('input');
+        if (!input) return;
+        const v = input.value.trim();
+        input.value = v.startsWith('-') ? v.slice(1) : '-' + v;
+        // Dispara la sincronización (tabla/tarjeta), el guardado y el recalc.
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.focus();
+      });
+    });
+
     // Botón borrar.
     const clearBtn = grad.querySelector('[data-grad-clear]');
     if (clearBtn) {

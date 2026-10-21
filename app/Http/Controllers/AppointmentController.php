@@ -23,12 +23,28 @@ class AppointmentController extends Controller
             'motivo' => ['nullable', 'string', 'max:120'],
             'fecha_preferida' => ['nullable', 'date', 'after_or_equal:today'],
             'mensaje' => ['nullable', 'string', 'max:1000'],
+            'conoce_graduacion' => ['nullable', 'boolean'],
+            'ultimo_examen' => ['nullable', 'string', 'max:120'],
+            'antiguedad_armazon' => ['nullable', 'string', 'max:120'],
+            'grad' => ['nullable', 'array'],
+            'grad.*' => ['nullable', 'string', 'max:20'],
         ], [
             'nombre.required' => 'Escribe tu nombre para poder contactarte.',
             'telefono.required' => 'Necesitamos un teléfono para confirmar tu cita.',
             'correo.email' => 'Revisa que el correo esté bien escrito.',
             'fecha_preferida.after_or_equal' => 'Elige una fecha de hoy en adelante.',
         ]);
+
+        // Graduación: solo se guarda si el cliente dijo que la conoce y llenó algo.
+        $conoce = $request->boolean('conoce_graduacion');
+        $grad = array_filter(
+            $request->input('grad', []),
+            fn ($v) => $v !== null && trim((string) $v) !== ''
+        );
+
+        $datos['conoce_graduacion'] = $conoce;
+        $datos['graduacion'] = ($conoce && $grad) ? $grad : null;
+        unset($datos['grad']);
 
         Appointment::create($datos);
 

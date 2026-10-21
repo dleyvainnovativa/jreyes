@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\Admin\CatalogNodeController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FrameController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CompanyRequestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,6 +29,10 @@ Route::get('/programas', [CatalogController::class, 'programas'])->name('program
 
 Route::get('/contacto', [AppointmentController::class, 'create'])->name('contacto');
 Route::post('/contacto', [AppointmentController::class, 'store'])->name('contacto.store');
+
+// Contacto para empresas (convenios / cotizaciones corporativas).
+Route::get('/contacto-empresas', [CompanyRequestController::class, 'create'])->name('contacto.empresas');
+Route::post('/contacto-empresas', [CompanyRequestController::class, 'store'])->name('contacto.empresas.store');
 
 // Página para compartir: hero + código QR al sitio, pantalla completa,
 // sin barra de navegación. Pensada para imprimir/mostrar y que el cliente
@@ -55,5 +62,15 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/catalogo/{node}/editar', [CatalogNodeController::class, 'edit'])->name('catalogo.edit');
     Route::put('/catalogo/{node}', [CatalogNodeController::class, 'update'])->name('catalogo.update');
 
-    // Próximos pasos (subida de imágenes, relaciones) se agregan aquí.
+    // Administración de armazones (CRUD).
+    Route::get('/armazones', [FrameController::class, 'index'])->name('armazones');
+    Route::get('/armazones/nuevo', [FrameController::class, 'create'])->name('armazones.create');
+    Route::post('/armazones', [FrameController::class, 'store'])->name('armazones.store');
+    Route::get('/armazones/{armazon}/editar', [FrameController::class, 'edit'])->name('armazones.edit');
+    Route::put('/armazones/{armazon}', [FrameController::class, 'update'])->name('armazones.update');
+    Route::delete('/armazones/{armazon}', [FrameController::class, 'destroy'])->name('armazones.destroy');
+
+    // Ajustes del sitio (contacto, ubicación, horario, redes sociales).
+    Route::get('/ajustes', [SettingsController::class, 'edit'])->name('ajustes');
+    Route::put('/ajustes', [SettingsController::class, 'update'])->name('ajustes.update');
 });

@@ -40,5 +40,11 @@
         <a href="{{ route('admin.catalogo') }}" class="btn btn-jr-primary">
             <i class="fa-solid fa-sitemap me-1" aria-hidden="true"></i> Editar árbol de lentes
         </a>
+        <a href="{{ route('admin.armazones') }}" class="btn btn-jr-outline">
+            <i class="fa-solid fa-glasses me-1" aria-hidden="true"></i> Administrar armazones
+        </a>
+        <a href="{{ route('admin.ajustes') }}" class="btn btn-jr-outline">
+            <i class="fa-solid fa-gear me-1" aria-hidden="true"></i> Ajustes del sitio
+        </a>
     </div>
 @endsection

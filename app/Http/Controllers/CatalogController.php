@@ -8,6 +8,7 @@ use App\Models\Frame;
 use App\Models\LensType;
 use App\Models\Package;
 use App\Models\Treatment;
+use App\Support\SiteSettings;
 use Illuminate\Http\Request;
 
 class CatalogController extends Controller
@@ -52,7 +53,7 @@ class CatalogController extends Controller
             ->with('descendants')->get();
 
         $configData = [
-            'whatsapp' => config('services.whatsapp.number'),
+            'whatsapp' => app(SiteSettings::class)->whatsapp(),
             'logo'     => asset($logo),
             'tipo'     => $tipo,
             'tipoNombre' => self::TIPOS[$tipo],
@@ -104,7 +105,7 @@ class CatalogController extends Controller
     public function contacto()
     {
         $brands = ContactLensBrand::ordenadas()->with('lenses')->get();
-        $whatsapp = config('services.whatsapp.number');
+        $whatsapp = app(SiteSettings::class)->whatsapp();
         $logo = asset('img/logo-jreyes.png');
 
         return view('pages.lentes-contacto', compact('brands', 'whatsapp', 'logo'));
@@ -114,22 +115,24 @@ class CatalogController extends Controller
     public function paquetes()
     {
         $packages = Package::activos()->get()->groupBy('nombre');
-        $whatsapp = config('services.whatsapp.number');
+        $whatsapp = app(SiteSettings::class)->whatsapp();
 
         return view('pages.paquetes', compact('packages', 'whatsapp'));
     }
 
-    /** Página institucional "Empresa". Contenido estático. */
+    /** Página institucional "Empresa". */
     public function empresa()
     {
-        $whatsapp = config('services.whatsapp.number');
+        $whatsapp = app(SiteSettings::class)->whatsapp();
+        // Para la sección "Calidad de tratamientos" (misma tabla que Marcas).
+        $comparativa = Treatment::activos()->get();
 
-        return view('pages.empresa', compact('whatsapp'));
+        return view('pages.empresa', compact('whatsapp', 'comparativa'));
     }
 
     public function programas()
     {
-        $whatsapp = config('services.whatsapp.number');
+        $whatsapp = app(SiteSettings::class)->whatsapp();
 
         return view('pages.programas', compact('whatsapp'));
     }
@@ -141,20 +144,10 @@ class CatalogController extends Controller
      */
     public function share()
     {
-        $whatsapp = config('services.whatsapp.number');
-
+        // Las redes sociales y el WhatsApp salen de $ajustes (compartido a todas
+        // las vistas), así que aquí solo hace falta la URL para el código QR.
         return view('pages.share', [
-            'urlSitio'  => route('home'),
-            'whatsapp'  => $whatsapp,
-            // Enlaces de redes sociales desde .env (con marcadores por defecto).
-            'social'    => [
-                'whatsapp'  => $whatsapp
-                    ? 'https://wa.me/' . preg_replace('/\D/', '', $whatsapp)
-                    : config('services.social.whatsapp'),
-                'facebook'  => config('services.social.facebook'),
-                'instagram' => config('services.social.instagram'),
-                'tiktok'    => config('services.social.tiktok'),
-            ],
+            'urlSitio' => route('home'),
         ]);
     }
 }

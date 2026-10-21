@@ -50,26 +50,13 @@
 
             {{-- Redes sociales con texto --}}
             <div class="jr-share__social">
-                @if (!empty($social['whatsapp']) && $social['whatsapp'] !== '#')
-                <a href="{{ $social['whatsapp'] }}" target="_blank" rel="noopener" class="jr-share__social-btn jr-share__social-btn--wa">
-                    <i class="fa-brands fa-whatsapp"></i> <span>WhatsApp</span>
-                </a>
-                @endif
-                @if (!empty($social['instagram']) && $social['instagram'] !== '#')
-                <a href="{{ $social['instagram'] }}" target="_blank" rel="noopener" class="jr-share__social-btn jr-share__social-btn--ig">
-                    <i class="fa-brands fa-instagram"></i> <span>Instagram</span>
-                </a>
-                @endif
-                @if (!empty($social['facebook']) && $social['facebook'] !== '#')
-                <a href="{{ $social['facebook'] }}" target="_blank" rel="noopener" class="jr-share__social-btn jr-share__social-btn--fb">
-                    <i class="fa-brands fa-facebook-f"></i> <span>Facebook</span>
-                </a>
-                @endif
-                @if (!empty($social['tiktok']) && $social['tiktok'] !== '#')
-                <a href="{{ $social['tiktok'] }}" target="_blank" rel="noopener" class="jr-share__social-btn jr-share__social-btn--tt">
-                    <i class="fa-brands fa-tiktok"></i> <span>TikTok</span>
-                </a>
-                @endif
+                @foreach ($ajustes->redes() as $red)
+                    @continue(empty($red->url) || $red->url === '#')
+                    <a href="{{ $red->url }}" target="_blank" rel="noopener"
+                        class="jr-share__social-btn" style="--c: {{ $red->color }}">
+                        <i class="{{ $red->icono }}"></i> <span>{{ \App\Models\SocialLink::PLATAFORMAS[$red->plataforma][0] ?? ucfirst($red->plataforma) }}</span>
+                    </a>
+                @endforeach
             </div>
 
         </div>
