@@ -43,6 +43,12 @@
         <a href="{{ route('admin.armazones') }}" class="btn btn-jr-outline">
             <i class="fa-solid fa-glasses me-1" aria-hidden="true"></i> Administrar armazones
         </a>
+        <a href="{{ route('admin.lentes-contacto') }}" class="btn btn-jr-outline">
+            <i class="fa-solid fa-eye me-1" aria-hidden="true"></i> Lentes de contacto
+        </a>
+        <a href="{{ route('admin.paquetes') }}" class="btn btn-jr-outline">
+            <i class="fa-solid fa-box me-1" aria-hidden="true"></i> Paquetes
+        </a>
         <a href="{{ route('admin.ajustes') }}" class="btn btn-jr-outline">
             <i class="fa-solid fa-gear me-1" aria-hidden="true"></i> Ajustes del sitio
         </a>

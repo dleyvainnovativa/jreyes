@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\CatalogNodeController;
+use App\Http\Controllers\Admin\ContactLensBrandController;
+use App\Http\Controllers\Admin\ContactLensController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FrameController;
+use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\LoginController;
@@ -73,4 +76,27 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // Ajustes del sitio (contacto, ubicación, horario, redes sociales).
     Route::get('/ajustes', [SettingsController::class, 'edit'])->name('ajustes');
     Route::put('/ajustes', [SettingsController::class, 'update'])->name('ajustes.update');
+
+    // Lentes de contacto: marcas y, dentro de cada marca, sus lentes.
+    Route::get('/lentes-contacto', [ContactLensBrandController::class, 'index'])->name('lentes-contacto');
+    Route::get('/lentes-contacto/nueva', [ContactLensBrandController::class, 'create'])->name('lentes-contacto.create');
+    Route::post('/lentes-contacto', [ContactLensBrandController::class, 'store'])->name('lentes-contacto.store');
+    Route::get('/lentes-contacto/{brand}/editar', [ContactLensBrandController::class, 'edit'])->name('lentes-contacto.edit');
+    Route::put('/lentes-contacto/{brand}', [ContactLensBrandController::class, 'update'])->name('lentes-contacto.update');
+    Route::delete('/lentes-contacto/{brand}', [ContactLensBrandController::class, 'destroy'])->name('lentes-contacto.destroy');
+
+    Route::get('/lentes-contacto/{brand}/lentes', [ContactLensController::class, 'index'])->name('lentes-contacto.lentes');
+    Route::get('/lentes-contacto/{brand}/lentes/nuevo', [ContactLensController::class, 'create'])->name('lentes-contacto.lentes.create');
+    Route::post('/lentes-contacto/{brand}/lentes', [ContactLensController::class, 'store'])->name('lentes-contacto.lentes.store');
+    Route::get('/lentes-contacto/{brand}/lentes/{lente}/editar', [ContactLensController::class, 'edit'])->name('lentes-contacto.lentes.edit');
+    Route::put('/lentes-contacto/{brand}/lentes/{lente}', [ContactLensController::class, 'update'])->name('lentes-contacto.lentes.update');
+    Route::delete('/lentes-contacto/{brand}/lentes/{lente}', [ContactLensController::class, 'destroy'])->name('lentes-contacto.lentes.destroy');
+
+    // Paquetes "lentes completos".
+    Route::get('/paquetes', [PackageController::class, 'index'])->name('paquetes');
+    Route::get('/paquetes/nuevo', [PackageController::class, 'create'])->name('paquetes.create');
+    Route::post('/paquetes', [PackageController::class, 'store'])->name('paquetes.store');
+    Route::get('/paquetes/{paquete}/editar', [PackageController::class, 'edit'])->name('paquetes.edit');
+    Route::put('/paquetes/{paquete}', [PackageController::class, 'update'])->name('paquetes.update');
+    Route::delete('/paquetes/{paquete}', [PackageController::class, 'destroy'])->name('paquetes.destroy');
 });
