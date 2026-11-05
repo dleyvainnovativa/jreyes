@@ -765,6 +765,13 @@ button:focus-visible,
 .jr-footer a:hover { color: var(--jr-gold); }
 .jr-footer h5 { color: var(--jr-text); font-family: var(--jr-font-body); font-size: .95rem; letter-spacing: .04em; text-transform: uppercase; }
 .jr-footer__logo { height: 54px; }
+.jr-footer__email {
+    min-width: 0;
+}
+.jr-footer__email a {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
 
 /* --------------------------------------------------------------------------
    16. Animaciones de entrada
