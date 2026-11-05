@@ -117,10 +117,10 @@
         <p class="jr-text-muted mb-4" style="max-width:60ch">Materiales de alta transparencia y acabados cuidados para una visión nítida y cómoda.</p>
 
         <div class="jr-gallery">
-            @foreach (range(1, 4) as $n)
-                <figure class="jr-gallery__item jr-reveal">
-                    <img src="{{ asset('img/micas/mica-' . $n . '.jpg') }}" alt="Calidad de micas — ejemplo {{ $n }}" loading="lazy">
-                </figure>
+            @foreach (range(1, 8) as $n)
+            <figure class="jr-gallery__item jr-reveal">
+                <img src="{{ asset('img/micas/mica-' . $n . '.jpg') }}" alt="Calidad de micas — ejemplo {{ $n }}" loading="lazy">
+            </figure>
             @endforeach
         </div>
     </div>
