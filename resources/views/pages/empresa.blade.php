@@ -119,7 +119,7 @@
         <div class="jr-gallery">
             @foreach (range(1, 8) as $n)
             <figure class="jr-gallery__item jr-reveal">
-                <img src="{{ asset('img/micas/mica-' . $n . '.jpg') }}" alt="Calidad de micas — ejemplo {{ $n }}" loading="lazy">
+                <img src="{{ asset('img/micas/mica-' . $n . '.jpg') }}?{{ uniqid() }}" alt="Calidad de micas — ejemplo {{ $n }}" loading="lazy">
             </figure>
             @endforeach
         </div>
