@@ -85,7 +85,7 @@
                 <h2 class="mb-0" style="font-size:clamp(1.9rem,4vw,2.8rem)">Encuentra el lente perfecto para tu vista</h2>
             </div>
             <div class="col-md-4 text-md-end">
-                <a href="{{ route('lentes') }}" class="btn btn-jr-outline">Ver todo el catálogo</a>
+                <a href="{{ route('lentes') }}" class="btn btn-jr-outline">Ver todo el catálogo de micas</a>
             </div>
         </div>
 
@@ -110,7 +110,7 @@
 </section>
 
 {{-- ===================== PROGRESIVOS PREMIUM (VARILUX) ===================== --}}
-<section class="jr-section jr-bg-2">
+<!-- <section class="jr-section jr-bg-2">
     <div class="container">
         <div class="row align-items-center g-4">
             <div class="col-lg-5">
@@ -142,10 +142,10 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 
 {{-- ===================== TRATAMIENTOS (CRIZAL) ===================== --}}
-<section class="jr-section">
+<!-- <section class="jr-section">
     <div class="container">
         <div class="row align-items-center g-4 flex-lg-row-reverse">
             <div class="col-lg-5">
@@ -164,7 +164,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 
 {{-- ===================== CTA FINAL ===================== --}}
 <section class="jr-section-sm">
