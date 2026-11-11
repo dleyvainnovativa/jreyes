@@ -40,7 +40,7 @@ Route::post('/contacto-empresas', [CompanyRequestController::class, 'store'])->n
 // Página para compartir: hero + código QR al sitio, pantalla completa,
 // sin barra de navegación. Pensada para imprimir/mostrar y que el cliente
 // escanee para visitar el sitio.
-Route::get('/share', [CatalogController::class, 'share'])->name('share');
+Route::get('/compartir', [CatalogController::class, 'share'])->name('share');
 
 /*
 |--------------------------------------------------------------------------
@@ -62,8 +62,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     // Editor del árbol de catálogo.
     Route::get('/catalogo', [CatalogNodeController::class, 'index'])->name('catalogo');
+    Route::get('/catalogo/nuevo', [CatalogNodeController::class, 'create'])->name('catalogo.create');
+    Route::post('/catalogo', [CatalogNodeController::class, 'store'])->name('catalogo.store');
     Route::get('/catalogo/{node}/editar', [CatalogNodeController::class, 'edit'])->name('catalogo.edit');
     Route::put('/catalogo/{node}', [CatalogNodeController::class, 'update'])->name('catalogo.update');
+    Route::delete('/catalogo/{node}', [CatalogNodeController::class, 'destroy'])->name('catalogo.destroy');
 
     // Administración de armazones (CRUD).
     Route::get('/armazones', [FrameController::class, 'index'])->name('armazones');

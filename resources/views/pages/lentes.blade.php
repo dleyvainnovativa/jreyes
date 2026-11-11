@@ -82,7 +82,7 @@
                     </div>
 
                     {{-- ============ GRADUACIÓN (opcional) ============ --}}
-                    <div class="jr-grad" id="jr-grad">
+                    <div class="jr-grad d-none" id="jr-grad">
                         <div class="jr-grad__head">
                             <h3 class="jr-card__title mb-1">Tu graduación <span class="jr-text-muted fw-normal small">(opcional)</span></h3>
                             <p class="jr-text-muted small mb-0">Si tienes tu receta a la mano, captúrala y la enviamos junto con tu pedido. Déjala en blanco si no la tienes.</p>

@@ -265,6 +265,24 @@ button:focus-visible,
   background: rgba(251, 203, 102, .06);
 }
 
+/* Acción destructiva (borrar nodo de catálogo, etc.). */
+.btn-jr-danger {
+  background: transparent;
+  border: 1px solid var(--jr-red);
+  color: var(--jr-red);
+}
+.btn-jr-danger:hover {
+  background: var(--jr-red);
+  border-color: var(--jr-red);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(245, 34, 40, .28);
+}
+
+/* Tarjeta de "zona de borrado": como jr-edit-card pero con acento rojo. */
+.jr-edit-card--danger {
+  border-color: rgba(245, 34, 40, .35);
+}
+
 /* --------------------------------------------------------------------------
    5. Navbar
    -------------------------------------------------------------------------- */
@@ -475,6 +493,37 @@ button:focus-visible,
 .jr-chip small { display: block; color: var(--jr-text-dim); font-weight: 500; }
 .jr-chip[aria-pressed="true"] small { color: var(--jr-gold-300); }
 .jr-chip:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Grupo de extras aditivos dentro de un paso: separado de los requeridos
+   por una línea sutil, con etiqueta "Extras (opcional)". */
+.jr-config__extras {
+  margin-top: .85rem;
+  padding-top: .85rem;
+  border-top: 1px dashed var(--jr-line);
+}
+.jr-config__extras-label {
+  margin: 0 0 .5rem;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--jr-text-dim);
+}
+.jr-config__extras-label span {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Chip de extra: en reposo lleve acento oro; al activarse va a ORO (toggle),
+   para distinguirlo del requerido (que va a ROJO en selección única). */
+.jr-chip--extra:hover { border-color: var(--jr-gold); }
+.jr-chip--extra[aria-pressed="true"] {
+  border-color: var(--jr-gold);
+  background: rgba(251, 203, 102, .14);
+  color: var(--jr-text);
+}
+.jr-chip--extra[aria-pressed="true"] small { color: var(--jr-gold-ink); }
 
 .jr-config__total {
   background: linear-gradient(135deg, var(--jr-surface-2), var(--jr-surface));

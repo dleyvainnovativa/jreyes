@@ -47,34 +47,6 @@
     </div>
 </section>
 
-{{-- ===================== MISIÓN Y VISIÓN ===================== --}}
-<section class="jr-section">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-lg-6 jr-reveal">
-                <div class="jr-feature h-100">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <i class="fa-solid fa-bullseye"></i>
-                        <h2 class="h3 mb-0">Misión</h2>
-                    </div>
-                    <p class="jr-text-muted mb-0">Ofrecer un servicio integral mediante la combinación de valores, calidad de atención y asesoría, de manera que satisfagan las necesidades y expectativas de nuestros clientes, produciendo un impacto positivo en sus vidas y crecimiento personal.</p>
-                </div>
-            </div>
-            <div class="col-lg-6 jr-reveal">
-                <div class="jr-feature h-100">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <i class="fa-solid fa-eye"></i>
-                        <h2 class="h3 mb-0">Visión</h2>
-                    </div>
-                    <p class="jr-text-muted mb-0">Ser la empresa de vanguardia que provea la más alta calidad en sus líneas de productos y la adecuada atención visual de cada uno de nuestros clientes a lo largo de sus vidas.</p>
-                </div>
-            </div>
-        </div>
-        <div class="text-center mt-4">
-            <a href="{{ route('empresa') }}" class="btn btn-jr-outline">Conoce más sobre nosotros</a>
-        </div>
-    </div>
-</section>
 
 {{-- ===================== CATEGORÍAS ===================== --}}
 <section class="jr-section">
@@ -92,7 +64,7 @@
         <div class="row g-4">
             @foreach ($lensTypes as $tipo)
             <div class="col-md-4 jr-reveal">
-                <a href="{{ route('lentes') }}#{{ $tipo->slug }}" class="jr-cat text-decoration-none jr-bg-2 h-100">
+                <a href="{{ route('lentes') }}?tipo={{ $tipo->slug }}" class="jr-cat text-decoration-none jr-bg-2 h-100">
                     <div class="jr-cat__body">
                         <div class="jr-cat__icon"><i class="{{ $tipo->icono ?? 'fa-solid fa-glasses' }}"></i></div>
                         <h3 class="jr-cat__title mb-2">{{ $tipo->nombre }}</h3>

@@ -7,10 +7,17 @@
    Cada tipo de lente tiene su propia profundidad (bifocal añade un paso de
    diseño). No hay lógica especial por tipo: el configurador simplemente
    muestra los HIJOS del nodo elegido en cada paso. Cuando el nodo elegido
-   no tiene hijos, es una hoja (tratamiento) y la configuración termina.
+   no tiene hijos REQUERIDOS, la rama termina (la configuración está lista).
 
-   El total suma solo los nodos con precio > 0; los de precio 0 se muestran
-   como "Precio en tienda" y no bloquean.
+   En cada paso los hijos se dividen en dos grupos:
+     - REQUERIDOS (es_extra = false): selección única. Es el que avanza el
+       árbol hacia el siguiente paso.
+     - EXTRAS    (es_extra = true):  selección múltiple opcional (toggles).
+       Se suman al total pero no avanzan el árbol ni bloquean el botón.
+       Son de nivel: aplican sin importar qué requerido se eligió en ese paso.
+
+   El total suma los nodos del camino (path) con precio > 0 MÁS los extras
+   seleccionados. Los de precio 0 se muestran como "Precio en tienda".
 
    El resumen muestra UNA IMAGEN POR CADA SELECCIÓN que tenga imagen propia
    (galería apilada), no una sola imagen.
@@ -60,11 +67,31 @@ export function initConfigurator() {
   const summaryDetail = summary?.querySelector('[data-summary-detail]');
   const summaryList = summary?.querySelector('[data-summary-list]');
 
-  // Estado: armazón + una cadena de nodos elegidos (uno por nivel del árbol).
+  // Estado: armazón + una cadena de nodos REQUERIDOS (uno por nivel del árbol)
+  // + los EXTRAS elegidos en cada nivel.
   const state = {
     armazon: null,
-    path: [], // [{nodo, stepIndex}] en orden de profundidad
+    path: [],    // [nodo, ...] elegidos (requeridos), indexados por profundidad
+    extras: {},  // { [depth]: [nodo, ...] } extras aditivos elegidos por nivel
   };
+
+  /* ---------------------------------------------------------------------- */
+  /* Helpers del árbol                                                      */
+  /* ---------------------------------------------------------------------- */
+  function tieneHijos(nodo) {
+    return Array.isArray(nodo.hijos) && nodo.hijos.length > 0;
+  }
+
+  // Hijos que avanzan el árbol (requeridos) vs. extras aditivos.
+  function hijosRequeridos(nodo) {
+    return (nodo.hijos || []).filter((h) => !h.es_extra);
+  }
+
+  // Una "hoja requerida" es un nodo sin hijos requeridos: la rama terminó,
+  // aunque todavía cuelguen extras opcionales debajo.
+  function esHojaRequerida(nodo) {
+    return hijosRequeridos(nodo).length === 0;
+  }
 
   /* ---------------------------------------------------------------------- */
   /* Paso 1 — Armazón (obligatorio)                                         */
@@ -98,6 +125,8 @@ export function initConfigurator() {
   const stepNumberBase = 2;
 
   // Crea (o reutiliza) el contenedor de un paso en la profundidad dada.
+  // Cada paso tiene dos filas de chips: requeridos y extras (ésta se oculta
+  // cuando el nivel no trae extras).
   function ensureStepBlock(depth, kind) {
     let block = stepsWrap.querySelector(`[data-depth="${depth}"]`);
     if (!block) {
@@ -109,7 +138,11 @@ export function initConfigurator() {
           <span class="jr-config__num">${stepNumberBase + depth}</span>
           <span data-step-title></span>
         </div>
-        <div class="jr-chips" data-step-chips></div>`;
+        <div class="jr-chips" data-step-chips></div>
+        <div class="jr-config__extras d-none" data-step-extras>
+          <p class="jr-config__extras-label">Extras <span>(opcional)</span></p>
+          <div class="jr-chips" data-step-extra-chips></div>
+        </div>`;
       stepsWrap.appendChild(block);
     }
     block.querySelector('[data-step-title]').textContent = KIND_LABEL[kind] || 'Opción';
@@ -117,12 +150,16 @@ export function initConfigurator() {
   }
 
   // Elimina los pasos con profundidad > depth (cuando se cambia una elección
-  // más arriba, los pasos inferiores dejan de tener sentido).
+  // más arriba, los pasos inferiores dejan de tener sentido). También limpia
+  // los extras de esos niveles; los del propio nivel `depth` se conservan.
   function pruneStepsBelow(depth) {
     stepsWrap.querySelectorAll('.jr-config__step').forEach((b) => {
       if (Number(b.dataset.depth) > depth) b.remove();
     });
     state.path = state.path.slice(0, depth + 1);
+    Object.keys(state.extras).forEach((d) => {
+      if (Number(d) > depth) delete state.extras[d];
+    });
   }
 
   function chip(nodo, onClick) {
@@ -134,10 +171,6 @@ export function initConfigurator() {
     btn.innerHTML = sub ? `${nodo.nombre}<small>${sub}</small>` : nodo.nombre;
     btn.addEventListener('click', () => onClick(btn, nodo));
     return btn;
-  }
-
-  function tieneHijos(nodo) {
-    return Array.isArray(nodo.hijos) && nodo.hijos.length > 0;
   }
 
   // Sublínea del chip.
@@ -154,14 +187,23 @@ export function initConfigurator() {
   }
 
   // Renderiza los hijos de un nodo como un paso a la profundidad dada.
+  // Divide en requeridos (selección única, avanzan) y extras (toggles).
   function renderStep(depth, hijos) {
     if (!hijos || !hijos.length) return; // hoja: no hay más pasos
-    const kind = hijos[0].kind;
+
+    const requeridos = hijos.filter((h) => !h.es_extra);
+    const extras = hijos.filter((h) => h.es_extra);
+
+    // El título toma el kind del grupo que exista (normalmente el requerido).
+    const kind = (requeridos[0] || extras[0]).kind;
     const block = ensureStepBlock(depth, kind);
+
+    // --- Requeridos: selección única que avanza el árbol ------------------
     const chipsWrap = block.querySelector('[data-step-chips]');
     chipsWrap.innerHTML = '';
+    chipsWrap.classList.toggle('d-none', requeridos.length === 0);
 
-    hijos.forEach((nodo) => {
+    requeridos.forEach((nodo) => {
       const btn = chip(nodo, (b) => {
         chipsWrap.querySelectorAll('.jr-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
         b.setAttribute('aria-pressed', 'true');
@@ -170,13 +212,41 @@ export function initConfigurator() {
         pruneStepsBelow(depth);
         state.path[depth] = nodo;
 
-        // Si tiene hijos, abre el siguiente paso.
-        if (nodo.hijos && nodo.hijos.length) {
+        // Si el nodo trae hijos (requeridos y/o extras), abre el siguiente paso.
+        if (tieneHijos(nodo)) {
           renderStep(depth + 1, nodo.hijos);
         }
         recalc();
       });
+      // Refleja la elección actual si el paso se re-renderiza.
+      if (state.path[depth] === nodo) btn.setAttribute('aria-pressed', 'true');
       chipsWrap.appendChild(btn);
+    });
+
+    // --- Extras: toggles aditivos, selección múltiple ---------------------
+    const extrasWrap = block.querySelector('[data-step-extras]');
+    const extraChipsWrap = block.querySelector('[data-step-extra-chips]');
+    extraChipsWrap.innerHTML = '';
+    extrasWrap.classList.toggle('d-none', extras.length === 0);
+
+    extras.forEach((nodo) => {
+      const btn = chip(nodo, (b) => {
+        const lista = state.extras[depth] || (state.extras[depth] = []);
+        const i = lista.indexOf(nodo);
+        if (i >= 0) {
+          lista.splice(i, 1);
+          b.setAttribute('aria-pressed', 'false');
+        } else {
+          lista.push(nodo);
+          b.setAttribute('aria-pressed', 'true');
+        }
+        if (!lista.length) delete state.extras[depth];
+        recalc();
+      });
+      btn.classList.add('jr-chip--extra');
+      // Refleja el estado actual del extra si el paso se re-renderiza.
+      if ((state.extras[depth] || []).includes(nodo)) btn.setAttribute('aria-pressed', 'true');
+      extraChipsWrap.appendChild(btn);
     });
   }
 
@@ -184,7 +254,30 @@ export function initConfigurator() {
   function initTreeSteps() {
     stepsWrap.innerHTML = '';
     state.path = [];
+    state.extras = {};
     renderStep(0, data.arbol || []);
+  }
+
+  /* ---------------------------------------------------------------------- */
+  /* Selecciones ordenadas (camino + extras intercalados por nivel)         */
+  /* ---------------------------------------------------------------------- */
+  function orderedSelections() {
+    const out = [];
+    const depths = new Set([
+      ...state.path.map((_, i) => i),
+      ...Object.keys(state.extras).map(Number),
+    ]);
+    const maxD = depths.size ? Math.max(...depths) : -1;
+    for (let d = 0; d <= maxD; d++) {
+      if (state.path[d]) out.push({ nodo: state.path[d], isExtra: false });
+      (state.extras[d] || []).forEach((ex) => out.push({ nodo: ex, isExtra: true }));
+    }
+    return out;
+  }
+
+  // Todos los extras elegidos (sin orden), para sumar el total.
+  function extrasElegidos() {
+    return Object.values(state.extras).flat();
   }
 
   /* ---------------------------------------------------------------------- */
@@ -202,19 +295,18 @@ export function initConfigurator() {
         imagen: state.armazon.imagen || null,
       });
     }
-    state.path.forEach((nodo) => {
-      if (!nodo) return;
+    orderedSelections().forEach(({ nodo, isExtra }) => {
       // "En tienda" solo para hojas de precio (sin hijos) con precio 0.
       // Un material/nivel agrupador (con hijos) no muestra etiqueta de precio.
       const esHoja = !tieneHijos(nodo);
       const esAgrupadorPuro = nodo.kind === 'nivel' || nodo.kind === 'diseno';
       items.push({
-        eyebrow: KIND_LABEL[nodo.kind] || 'Opción',
+        eyebrow: isExtra ? 'Extra' : (KIND_LABEL[nodo.kind] || 'Opción'),
         nombre: nodo.nombre,
         descripcion: nodo.descripcion || null,
         precio: nodo.precio > 0 ? nodo.precio : null,
-        enTienda: nodo.precio === 0 && esHoja && !esAgrupadorPuro,
-        es_extra: nodo.es_extra,
+        enTienda: nodo.precio === 0 && esHoja && !esAgrupadorPuro && !isExtra,
+        es_extra: isExtra,
         imagen: nodo.imagen || null,
       });
     });
@@ -424,10 +516,11 @@ export function initConfigurator() {
     const l = [];
     l.push(`¡Hola! Quiero cotizar unos lentes ${data.tipoNombre?.toLowerCase() || ''} con esta configuración:`);
     if (state.armazon) l.push(`• Armazón: ${state.armazon.nombre} (incluido)`);
-    state.path.forEach((nodo) => {
-      if (!nodo) return;
-      const etiqueta = KIND_LABEL[nodo.kind] || 'Opción';
-      const precio = nodo.precio > 0 ? ` — ${(nodo.es_extra ? '+ ' : '') + MXN.format(nodo.precio)}` : ' — precio en tienda';
+    orderedSelections().forEach(({ nodo, isExtra }) => {
+      const etiqueta = isExtra ? 'Extra' : (KIND_LABEL[nodo.kind] || 'Opción');
+      const precio = nodo.precio > 0
+        ? ` — ${(isExtra ? '+ ' : '') + MXN.format(nodo.precio)}`
+        : ' — precio en tienda';
       l.push(`• ${etiqueta}: ${nodo.nombre}${precio}`);
     });
     l.push(`Total estimado (micas): ${MXN.format(total)}`);
@@ -445,8 +538,10 @@ export function initConfigurator() {
   function recalc() {
     const items = selectedItems();
 
-    // Total: suma de nodos del path con precio > 0.
-    const total = state.path.reduce((sum, n) => sum + (n && n.precio > 0 ? n.precio : 0), 0);
+    // Total: suma de nodos del path con precio > 0 MÁS los extras elegidos.
+    const totalPath = state.path.reduce((sum, n) => sum + (n && n.precio > 0 ? n.precio : 0), 0);
+    const totalExtras = extrasElegidos().reduce((sum, n) => sum + (n && n.precio > 0 ? n.precio : 0), 0);
+    const total = totalPath + totalExtras;
     priceEl.textContent = MXN.format(total);
 
     // Desglose corto
@@ -456,19 +551,17 @@ export function initConfigurator() {
       breakdownEl.textContent = 'Elige el nivel de la mica para ver tu precio.';
     } else {
       const partes = ['Armazón incluido'];
-      state.path.forEach((n) => {
-        if (!n) return;
-        if (n.precio > 0) partes.push(`${n.nombre} ${MXN.format(n.precio)}`);
+      orderedSelections().forEach(({ nodo, isExtra }) => {
+        if (nodo.precio > 0) partes.push(`${isExtra ? '+ ' : ''}${nodo.nombre} ${MXN.format(nodo.precio)}`);
       });
       breakdownEl.innerHTML = '<span class="jr-text-muted">' + partes.join(' + ') + '</span>';
     }
 
-    // El botón se activa con armazón + una hoja final (el último nodo del
-    // path no tiene hijos). Esto funciona para todos los tipos y
-    // profundidades: la configuración está completa solo al llegar al
-    // final de la rama (tratamiento).
+    // El botón se activa con armazón + una rama terminada. La rama termina
+    // cuando el último nodo del path no tiene hijos REQUERIDOS (aunque cuelguen
+    // extras opcionales). Funciona para todos los tipos y profundidades.
     const ultimo = state.path[state.path.length - 1];
-    const hojaElegida = ultimo && !tieneHijos(ultimo);
+    const hojaElegida = ultimo && esHojaRequerida(ultimo);
     const listo = state.armazon && hojaElegida;
 
     if (waBtn) {

@@ -74,7 +74,7 @@
                         {{-- Preguntas adicionales --}}
                         <div class="col-12"><hr class="jr-divider my-1"></div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 d-none">
                             <label class="form-label d-block">¿Conoces tu graduación?</label>
                             <div class="d-flex gap-4 pt-1">
                                 <div class="form-check">

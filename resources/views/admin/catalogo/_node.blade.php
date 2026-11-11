@@ -6,21 +6,26 @@
         <span class="jr-tree__name">{{ $node->nombre }}</span>
         <span class="jr-tree__kind">{{ $node->kind }}</span>
         @unless ($node->activo)
-            <span class="jr-tree__badge jr-tree__badge--off">Oculto</span>
+        <span class="jr-tree__badge jr-tree__badge--off">Oculto</span>
         @endunless
         @if ($node->es_extra)
-            <span class="jr-tree__badge jr-tree__badge--extra">Extra</span>
+        <span class="jr-tree__badge jr-tree__badge--extra">Extra</span>
         @endif
     </div>
 
     <div class="jr-tree__side">
         <span class="jr-tree__price">
             @if ((float) $node->precio > 0)
-                ${{ number_format($node->precio, 2) }}
+            ${{ number_format($node->precio, 2) }}
             @else
-                <span class="jr-text-dim">En tienda</span>
+            <span class="jr-text-dim">En tienda</span>
             @endif
         </span>
+        <a href="{{ route('admin.catalogo.create', ['parent' => $node->id]) }}" class="btn btn-sm btn-jr-outline"
+            title="Agregar un hijo dentro de este nodo">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            <span class="d-none d-sm-inline">Hijo</span>
+        </a>
         <a href="{{ route('admin.catalogo.edit', $node) }}" class="btn btn-sm btn-jr-outline">
             <i class="fa-solid fa-pen" aria-hidden="true"></i>
             <span class="d-none d-sm-inline">Editar</span>
@@ -29,5 +34,5 @@
 </div>
 
 @foreach ($node->children as $hijo)
-    @include('admin.catalogo._node', ['node' => $hijo, 'depth' => $depth + 1])
+@include('admin.catalogo._node', ['node' => $hijo, 'depth' => $depth + 1])
 @endforeach

@@ -57,13 +57,13 @@ class CatalogController extends Controller
             'logo'     => asset($logo),
             'tipo'     => $tipo,
             'tipoNombre' => self::TIPOS[$tipo],
-            'armazones' => $frames->map(fn ($f) => [
+            'armazones' => $frames->map(fn($f) => [
                 'nombre' => $f->nombre,
                 'precio' => (float) $f->precio,
                 'imagen' => asset($f->imagen ?: $logo),
             ])->values(),
             // Árbol serializado: cada nodo lleva sus hijos.
-            'arbol' => $raices->map(fn ($n) => $this->serializeNode($n, $logo))->values(),
+            'arbol' => $raices->map(fn($n) => $this->serializeNode($n, $logo))->values(),
         ];
 
         return view('pages.lentes', [
@@ -86,7 +86,10 @@ class CatalogController extends Controller
             'es_extra'    => (bool) $n->es_extra,
             'descripcion' => $n->descripcion,
             'imagen'      => $n->imagen ? asset($n->imagen) : null,
-            'hijos'       => $n->children->map(fn ($c) => $this->serializeNode($c, $logo))->values(),
+            // Solo hijos visibles: en el sitio público un nodo oculto (activo
+            // = false) no debe aparecer a ninguna profundidad del árbol.
+            'hijos'       => $n->children->where('activo', true)
+                ->map(fn($c) => $this->serializeNode($c, $logo))->values(),
         ];
     }
 
